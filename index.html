@@ -1,29 +1,26 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>فحص الاتصال</title>
-</head>
-<body style="background:#000; color:#d4af37; text-align:center; padding-top:100px; font-family:sans-serif;">
+const express = require("express");
+const fetch = require("node-fetch");
+const cors = require("cors"); // أضفنا هذا للسماح لـ HTML بمراسلته
 
-    <h2>⚜️ فحص الاتصال القسري</h2>
-    <p>اضغط الزر، إذا ظهرت لك صفحة فيها كلمة "ok:true" <br> فمعناه أن الرسالة وصلت لهاتفك.</p>
+const app = express();
+app.use(cors()); // تفعيل الـ CORS على السيرفر
 
-    <button onclick="sendNow()" style="padding:20px 40px; font-size:20px; cursor:pointer; background:#d4af37; border:none; border-radius:15px; font-weight:bold;">
-        إرسال رسالة "تم" الآن
-    </button>
+app.get("/send", async (req, res) => {
+    // بياناتك الخاصة
+    const TOKEN = "8736983183:AAHZI864nf1nxjmOlqsAnwhSoK9K2VR5W7Y";
+    const CHAT_ID = "5156556639";
+    
+    // استقبال النص من المتصفح (اختياري)
+    const message = req.query.msg || "تم الاتصال من السيرفر ✅";
 
-    <script>
-        function sendNow() {
-            const T = '8736983183:AAHZI864nf1nxjmOlqsAnwhSoK9K2VR5W7Y';
-            const C = '5156556639';
-            
-            // هذه الطريقة لا تستخدم fetch (الذي يحظره المتصفح)
-            // بل تقوم بفتح الرابط مباشرة، وهو ما لا يمكن حظره برمجياً
-            const url = `https://api.telegram.org/bot${T}/sendMessage?chat_id=${C}&text=✅ تم كسر حظر المتصفح والاتصال بنجاح!`;
-            
-            window.location.href = url; 
-        }
-    </script>
-</body>
-</html>
+    try {
+        const r = await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`);
+        const data = await r.json();
+        res.json(data);
+    } catch (error) {
+        res.status(500).json({ error: "فشل الاتصال بتليجرام" });
+    }
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
