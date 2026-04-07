@@ -1,29 +1,55 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <title>فحص نهائي</title>
+<meta charset="UTF-8">
+<title>فحص البوت</title>
 </head>
-<body style="background:#000; color:#d4af37; text-align:center; padding-top:100px; font-family:sans-serif;">
+<body style="text-align:center; margin-top:100px; font-family:sans-serif; background-color: #0f1216; color: white;">
 
-    <h2>⚜️ فحص الاتصال النهائي</h2>
-    <p>اضغط الزر، إذا فتحت صفحة بيضاء مكتوب فيها "ok:true" <br> فستجد الرسالة وصلت لهاتفك فوراً.</p>
+<h2>فحص إرسال رسالة</h2>
 
-    <button onclick="forceSend()" style="padding:20px 40px; font-size:20px; cursor:pointer; background:#d4af37; border:none; border-radius:15px; font-weight:bold;">
-        إرسال رسالة "تم" الآن
-    </button>
+<button onclick="sendTest()" style="padding:15px 30px; font-size:18px; cursor:pointer; background: #d4af37; border: none; border-radius: 8px; font-weight: bold;">
+    إرسال "تم"
+</button>
 
-    <script>
-        function forceSend() {
-            const T = '8736983183:AAHZI864nf1nxjmOlqsAnwhSoK9K2VR5W7Y';
-            const C = '5156556639';
-            
-            // هذه الطريقة تفتح الرابط في صفحة جديدة (لا يمكن حظرها نهائياً)
-            // بمجرد ضغط الزر، سيتم إرسال الرسالة رغماً عن حماية المتصفح
-            const url = `https://api.telegram.org/bot${T}/sendMessage?chat_id=${C}&text=✅ تم الاتصال بنجاح من المتصفح!`;
-            
-            window.location.href = url; 
+<p id="status" style="margin-top: 20px; color: #888;"></p>
+
+<script>
+function sendTest() {
+    // تم وضع بياناتك هنا بدقة
+    const TOKEN = "8736983183:AAHZI864nf1nxjmOlqsAnwhSoK9K2VR5W7Y";
+    const CHAT_ID = "5156556639";
+    const status = document.getElementById('status');
+
+    status.innerText = "جاري المحاولة...";
+
+    fetch(`https://api.telegram.org/bot${TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            chat_id: CHAT_ID,
+            text: "تم الاتصال بنجاح من كود الفحص ✅"
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.ok) {
+            alert("✅ تم الإرسال بنجاح! افحص التليجرام.");
+            status.innerText = "وصلت الرسالة!";
+        } else {
+            alert("❌ فشل من جهة تليجرام: " + data.description);
+            status.innerText = "خطأ: " + data.description;
         }
-    </script>
+    })
+    .catch(err => {
+        alert("❌ خطأ شبكة (CORS): المتصفح حظر الطلب.");
+        status.innerText = "المتصفح منع الإرسال لأسباب أمنية.";
+        console.error(err);
+    });
+}
+</script>
+
 </body>
 </html>
