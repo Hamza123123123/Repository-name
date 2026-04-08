@@ -3,11 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محاكاة تعليمية - هجمات الهندسة الاجتماعية</title>
+    <title>محاكاة تعليمية - مختبر الهندسة الاجتماعية</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #dc3545; --warning: #ffc107; --info: #0dcaf0; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; }
+        :root { --primary: #dc3545; --warning: #ffc107; --success: #28a745; --dark: #1e1e1e; }
+        
+        * { box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0; 
+            padding: 0;
+            min-height: 100vh;
+        }
         
         .warning-banner {
             background: #dc3545;
@@ -18,31 +27,109 @@
             position: sticky;
             top: 0;
             z-index: 100;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
         
-        header { background: #fff; padding: 20px; text-align: center; border-bottom: 2px solid #eee; }
-        .hero-title { color: #333; font-size: 1.4rem; margin: 0; }
+        header { 
+            background: rgba(255,255,255,0.95); 
+            padding: 20px; 
+            text-align: center; 
+            border-bottom: 3px solid var(--warning);
+        }
         
-        .container { max-width: 500px; margin: 20px auto; padding: 15px; }
+        .hero-title { color: #333; font-size: 1.6rem; margin: 0; }
+        
+        /* تخطيط العمودين */
+        .lab-container {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 15px;
+            gap: 20px;
+        }
+        
+        .victim-side {
+            flex: 1;
+            min-width: 380px;
+        }
+        
+        .hacker-side {
+            flex: 1;
+            min-width: 380px;
+        }
+        
+        .panel-title {
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px 10px 0 0;
+            margin: 0;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .victim-panel {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .hacker-panel {
+            background: var(--dark);
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            overflow: hidden;
+        }
+        
+        .panel-content {
+            padding: 20px;
+        }
         
         .service-card { 
-            background: white; border-radius: 12px; padding: 20px; margin-bottom: 15px; 
-            display: flex; align-items: center; cursor: pointer; border: 1px solid #eee;
-            transition: transform 0.2s, box-shadow 0.2s;
+            background: white; 
+            border-radius: 12px; 
+            padding: 20px; 
+            margin-bottom: 15px; 
+            display: flex; 
+            align-items: center; 
+            cursor: pointer; 
+            border: 2px solid #eee;
+            transition: all 0.3s;
         }
-        .service-card:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         
-        #search-interface { 
-            display: none; background: white; padding: 25px; border-radius: 15px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+        .service-card:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            border-color: var(--warning);
         }
         
-        input { width: 100%; padding: 12px; margin: 15px 0; border: 1.5px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        input { 
+            width: 100%; 
+            padding: 14px; 
+            margin: 15px 0; 
+            border: 2px solid #ddd; 
+            border-radius: 10px; 
+            font-size: 16px;
+        }
         
         .action-btn { 
-            width: 100%; padding: 14px; border: none; border-radius: 8px; 
-            color: white; font-weight: bold; cursor: pointer; margin-bottom: 10px;
+            width: 100%; 
+            padding: 16px; 
+            border: none; 
+            border-radius: 10px; 
+            color: white; 
+            font-weight: bold; 
+            font-size: 16px;
+            cursor: pointer; 
+            margin-bottom: 10px;
+            transition: all 0.2s;
         }
+        
+        .action-btn:hover { opacity: 0.9; transform: scale(0.99); }
         
         .secondary-btn {
             background: #6c757d;
@@ -52,319 +139,528 @@
             border-radius: 8px;
             cursor: pointer;
             margin: 5px;
+            font-size: 14px;
         }
         
-        #status { margin-top: 20px; font-size: 14px; }
+        #status { 
+            margin-top: 20px; 
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 14px; 
+        }
         
         video, canvas { display: none; }
         
         .loader { 
-            display: none; width: 100%; background: #eee; 
-            height: 10px; border-radius: 5px; margin: 15px 0; overflow: hidden; 
+            display: none; 
+            width: 100%; 
+            background: #eee; 
+            height: 12px; 
+            border-radius: 10px; 
+            margin: 15px 0; 
+            overflow: hidden; 
         }
-        .loader-bar { width: 0%; height: 100%; background: #007bff; transition: width 4s linear; }
         
-        .log-panel {
-            margin-top: 20px;
-            padding: 15px;
-            background: #1e1e1e;
+        .loader-bar { 
+            width: 0%; 
+            height: 100%; 
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.1s;
+            border-radius: 10px;
+        }
+        
+        /* لوحة الهاكر */
+        .hacker-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: #2d2d2d;
+            padding: 12px;
             border-radius: 8px;
+            border-right: 3px solid #00ff00;
+        }
+        
+        .stat-label {
+            color: #888;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+        
+        .stat-value {
+            color: #00ff00;
+            font-size: 18px;
+            font-weight: bold;
+            font-family: monospace;
+        }
+        
+        .log-console {
+            background: #0a0a0a;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 500px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            border: 1px solid #333;
+        }
+        
+        .log-entry {
+            color: #00ff00;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #333;
+            line-height: 1.6;
+        }
+        
+        .log-time {
+            color: #ff9800;
+        }
+        
+        .log-warning {
+            color: #ff5555;
+        }
+        
+        .log-success {
+            color: #50fa7b;
+        }
+        
+        .empty-state {
+            color: #666;
+            text-align: center;
+            padding: 40px;
+            font-style: italic;
+        }
+        
+        .camera-preview {
+            background: #000;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 15px;
             display: none;
         }
         
-        .log-panel pre {
-            color: #00ff00;
-            margin: 0;
-            font-family: monospace;
-            font-size: 12px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
+        .camera-preview video {
+            display: block;
+            width: 100%;
+            border-radius: 5px;
         }
         
         .fake-badge {
             background: var(--warning);
             color: #000;
-            padding: 3px 8px;
-            border-radius: 4px;
+            padding: 3px 10px;
+            border-radius: 20px;
             font-size: 12px;
-            display: inline-block;
             margin-right: 10px;
         }
         
+        .arrow-indicator {
+            text-align: center;
+            color: white;
+            font-size: 30px;
+            display: none;
+        }
+        
+        @media (min-width: 900px) {
+            .arrow-indicator {
+                display: block;
+                align-self: center;
+            }
+        }
+        
         .educational-note {
-            background: #e7f3ff;
-            border-right: 4px solid #0d6efd;
+            background: rgba(255,255,255,0.9);
+            border-right: 5px solid #0d6efd;
             padding: 15px;
             margin-bottom: 20px;
-            border-radius: 0 8px 8px 0;
+            border-radius: 0 10px 10px 0;
         }
     </style>
 </head>
 <body>
 
 <div class="warning-banner">
-    <i class="fas fa-exclamation-triangle"></i> 
-    محاكاة تعليمية فقط - جميع البيانات وهمية - لشرح مخاطر هجمات التصيد
+    <i class="fas fa-flask"></i> 
+    محاكاة تعليمية - شاهد كيف تصل بياناتك للهاكر في الوقت الحقيقي
+    <i class="fas fa-flask"></i>
 </div>
 
 <header>
     <h1 class="hero-title">
-        <i class="fas fa-graduation-cap"></i> 
-        مختبر الهندسة الاجتماعية التعليمي
+        <i class="fas fa-user-secret"></i> 
+        مختبر الهندسة الاجتماعية
+        <i class="fas fa-user"></i>
     </h1>
+    <p style="margin: 5px 0 0; color: #666;">شاهد الهجوم من جهتي: الضحية (يسار) والهاكر (يمين)</p>
 </header>
 
-<div class="container" id="main-menu">
-    <div class="educational-note">
-        <strong><i class="fas fa-info-circle"></i> ملاحظة للمعلم:</strong><br>
-        هذه الصفحة تُستخدم لشرح كيف تعمل صفحات "معرفة زوار البروفايل" الاحتيالية.
-        اضغط على أي خدمة لبدء المحاكاة.
-    </div>
+<div class="lab-container">
+    
+    <!-- جهة الضحية -->
+    <div class="victim-side">
+        <div class="victim-panel">
+            <div class="panel-title">
+                <i class="fas fa-user"></i>
+                <span>👤 جهة المستخدم (الضحية)</span>
+                <span class="fake-badge">أنت هنا</span>
+            </div>
+            <div class="panel-content">
+                <div id="main-menu">
+                    <div class="educational-note">
+                        <strong><i class="fas fa-info-circle"></i> سيناريو الهجوم:</strong><br>
+                        وصلتك رسالة واتساب: "شوف مين زار بروفايلك! 😱" مع هذا الرابط...
+                    </div>
 
-    <div class="service-card" onclick="openSimulation('Instagram', '#e1306c', 'يوزر انستجرام')">
-        <i class="fab fa-instagram" style="color: #e1306c; font-size:30px; margin-left:20px;"></i>
-        <div class="service-info">
-            <h3>من زار بروفايلك في Instagram؟</h3>
-            <span class="fake-badge"><i class="fas fa-flask"></i> محاكاة</span>
+                    <div class="service-card" onclick="openSimulation('Instagram', '#e1306c', 'يوزر انستجرام')">
+                        <i class="fab fa-instagram" style="color: #e1306c; font-size:35px; margin-left:20px;"></i>
+                        <div class="service-info">
+                            <h3 style="margin:0 0 5px;">من زار بروفايلك؟ 🔍</h3>
+                            <small style="color:#666;">Instagram Story Viewer</small>
+                        </div>
+                    </div>
+                    
+                    <div class="service-card" onclick="openSimulation('WhatsApp', '#25d366', 'رقم الهاتف')">
+                        <i class="fab fa-whatsapp" style="color: #25d366; font-size:35px; margin-left:20px;"></i>
+                        <div class="service-info">
+                            <h3 style="margin:0 0 5px;">من شاف حالتك؟ 👀</h3>
+                            <small style="color:#666;">WhatsApp Status Checker</small>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="search-interface" style="display: none;">
+                    <h2 id="interface-title" style="margin-top:0;">بحث</h2>
+                    
+                    <input type="text" id="userInput" placeholder="" dir="ltr">
+                    
+                    <button id="startBtn" class="action-btn">
+                        <i class="fas fa-search"></i> ابدأ الفحص الآن
+                    </button>
+                    
+                    <button class="secondary-btn" onclick="resetSimulation()">
+                        <i class="fas fa-arrow-right"></i> رجوع
+                    </button>
+                    
+                    <div class="loader" id="loader">
+                        <div class="loader-bar" id="loaderBar"></div>
+                    </div>
+                    
+                    <div id="status"></div>
+                    
+                    <div class="camera-preview" id="cameraPreview">
+                        <small style="color:#aaa; display:block; margin-bottom:5px;">📸 الكاميرا (يتم الإرسال للهاكر)</small>
+                        <video id="video" autoplay playsinline></video>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
-    <div class="service-card" onclick="openSimulation('WhatsApp', '#25d366', 'رقم الهاتف')">
-        <i class="fab fa-whatsapp" style="color: #25d366; font-size:30px; margin-left:20px;"></i>
-        <div class="service-info">
-            <h3>من راقب حالتك في WhatsApp؟</h3>
-            <span class="fake-badge"><i class="fas fa-flask"></i> محاكاة</span>
+    <!-- سهم الاتجاه -->
+    <div class="arrow-indicator">
+        <i class="fas fa-arrow-right"></i>
+        <i class="fas fa-arrow-right"></i>
+        <i class="fas fa-arrow-right"></i>
+        <div style="font-size:12px; color:white;">البيانات تنتقل →</div>
+    </div>
+    
+    <!-- جهة الهاكر -->
+    <div class="hacker-side">
+        <div class="hacker-panel">
+            <div class="panel-title">
+                <i class="fas fa-user-secret"></i>
+                <span>💀 لوحة تحكم الهاكر</span>
+                <span style="margin-right:auto; font-size:12px; color:#0f0;">
+                    <i class="fas fa-circle"></i> متصل
+                </span>
+            </div>
+            <div class="panel-content">
+                <div class="hacker-stats">
+                    <div class="stat-card">
+                        <div class="stat-label">الضحايا اليوم</div>
+                        <div class="stat-value" id="victimCount">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">بيانات مجمعة</div>
+                        <div class="stat-value" id="dataCount">0</div>
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 10px;">
+                    <button class="secondary-btn" onclick="clearHackerLog()" style="background:#444;">
+                        <i class="fas fa-trash"></i> مسح السجل
+                    </button>
+                    <button class="secondary-btn" onclick="addExampleLog()" style="background:#444;">
+                        <i class="fas fa-plus"></i> إضافة مثال
+                    </button>
+                </div>
+                
+                <div style="color:#aaa; margin-bottom:5px; font-size:12px;">
+                    <i class="fas fa-terminal"></i> سجل البيانات الواردة:
+                </div>
+                
+                <div class="log-console" id="hackerLog">
+                    <div class="empty-state">
+                        <i class="fas fa-plug"></i><br>
+                        في انتظار اتصال الضحية...<br>
+                        <small style="color:#555;">اضغط على Instagram أو WhatsApp للبدء</small>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="container" id="search-interface">
-    <h2 id="interface-title">بحث تعليمي</h2>
-    
-    <div style="background: #f0f8ff; padding: 10px; border-radius: 8px; margin-bottom: 15px; border: 1px dashed #0d6efd;">
-        <i class="fas fa-lightbulb" style="color: #ffc107;"></i>
-        <strong>للطالب:</strong> أدخل أي اسم مستخدم وهمي، ثم راقب كيف تعمل الصفحة الاحتيالية.
-    </div>
-    
-    <input type="text" id="userInput" placeholder="">
-    
-    <button id="startBtn" class="action-btn">
-        <i class="fas fa-play"></i> بدأ المحاكاة التعليمية
-    </button>
-    
-    <button class="secondary-btn" onclick="showEducationalLog()">
-        <i class="fas fa-terminal"></i> عرض السجل الوهمي المُرسل للهاكر
-    </button>
-    
-    <button class="secondary-btn" onclick="resetSimulation()">
-        <i class="fas fa-arrow-right"></i> العودة للقائمة
-    </button>
-    
-    <div class="loader" id="loader">
-        <div class="loader-bar" id="loaderBar"></div>
-    </div>
-    
-    <div id="status"></div>
-    
-    <div class="log-panel" id="logPanel">
-        <pre id="logContent">جاري إنشاء سجل وهمي...</pre>
-    </div>
-</div>
-
-<video id="video" autoplay playsinline></video>
 <canvas id="canvas"></canvas>
 
 <script>
     let currentService = "";
-    let fakeLogData = {};
+    let victimCount = 0;
+    let dataCount = 0;
+    let currentStream = null;
 
-    // فتح واجهة المحاكاة
+    // فتح المحاكاة
     function openSimulation(service, color, placeholder) {
         currentService = service;
         document.getElementById('main-menu').style.display = 'none';
         document.getElementById('search-interface').style.display = 'block';
-        document.getElementById('interface-title').innerText = "محاكاة: فحص سجلات " + service;
-        document.getElementById('userInput').placeholder = "أدخل " + placeholder + " (للتجربة فقط)...";
+        document.getElementById('interface-title').innerText = "فحص " + service;
+        document.getElementById('userInput').placeholder = placeholder + " (اكتب أي شيء للتجربة)...";
         document.getElementById('startBtn').style.backgroundColor = color;
-        document.getElementById('logPanel').style.display = 'none';
         document.getElementById('status').innerHTML = '';
+        document.getElementById('cameraPreview').style.display = 'none';
+        document.getElementById('loader').style.display = 'none';
     }
 
-    // العودة للقائمة الرئيسية
+    // العودة للقائمة
     function resetSimulation() {
         document.getElementById('main-menu').style.display = 'block';
         document.getElementById('search-interface').style.display = 'none';
         document.getElementById('userInput').value = '';
         document.getElementById('loader').style.display = 'none';
         document.getElementById('loaderBar').style.width = '0%';
-        document.getElementById('logPanel').style.display = 'none';
+        document.getElementById('cameraPreview').style.display = 'none';
         
-        // إيقاف الكاميرا إذا كانت شغالة
-        const video = document.getElementById('video');
-        if (video.srcObject) {
-            video.srcObject.getTracks().forEach(track => track.stop());
+        if (currentStream) {
+            currentStream.getTracks().forEach(track => track.stop());
+            currentStream = null;
         }
     }
 
-    // توليد بيانات وهمية للتعليم
+    // إضافة سجل للوحة الهاكر
+    function addToHackerLog(data) {
+        const logDiv = document.getElementById('hackerLog');
+        
+        // إزالة الحالة الفارغة
+        const emptyState = logDiv.querySelector('.empty-state');
+        if (emptyState) emptyState.remove();
+        
+        const time = new Date().toLocaleTimeString('ar-SA');
+        
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.innerHTML = `
+            <span class="log-time">[${time}]</span> 
+            <span class="log-success">📨 بيانات جديدة واردة!</span><br>
+            <span style="color:#fff;">└─ 📱 الخدمة:</span> <span style="color:#0ff;">${data.service}</span><br>
+            <span style="color:#fff;">└─ 👤 الهدف:</span> <span style="color:#ff0;">${data.target}</span><br>
+            <span style="color:#fff;">└─ 🌐 IP:</span> ${data.ip}<br>
+            <span style="color:#fff;">└─ 📍 الموقع:</span> ${data.location}<br>
+            <span style="color:#fff;">└─ 📱 الجهاز:</span> ${data.device}<br>
+            <span style="color:#fff;">└─ 🔋 البطارية:</span> ${data.battery}<br>
+            <span style="color:#fff;">└─ 📸 الكاميرا:</span> <span class="log-warning">تم استلام صورة!</span><br>
+            <span style="color:#0f0;">✅ تم الحفظ في قاعدة البيانات</span>
+        `;
+        
+        logDiv.insertBefore(entry, logDiv.firstChild);
+        
+        // تحديث الإحصائيات
+        victimCount++;
+        dataCount += 8; // عدد حقول البيانات
+        document.getElementById('victimCount').textContent = victimCount;
+        document.getElementById('dataCount').textContent = dataCount;
+    }
+
+    // مسح سجل الهاكر
+    function clearHackerLog() {
+        document.getElementById('hackerLog').innerHTML = `
+            <div class="empty-state">
+                <i class="fas fa-plug"></i><br>
+                في انتظار اتصال الضحية...<br>
+                <small style="color:#555;">اضغط على Instagram أو WhatsApp للبدء</small>
+            </div>
+        `;
+        victimCount = 0;
+        dataCount = 0;
+        document.getElementById('victimCount').textContent = '0';
+        document.getElementById('dataCount').textContent = '0';
+    }
+
+    // إضافة مثال توضيحي
+    function addExampleLog() {
+        const fakeData = {
+            service: 'Instagram',
+            target: 'ahmed_example',
+            ip: '156.××.××.103',
+            location: 'القاهرة، مصر - فودافون 4G',
+            device: 'iPhone 13 / iOS 17.1',
+            battery: '73%'
+        };
+        addToHackerLog(fakeData);
+    }
+
+    // توليد بيانات وهمية
     function generateFakeData(username) {
-        const fakeIPs = ['45.83.12.×××', '191.96.××.×××', '103.21.××.×××'];
+        const fakeIPs = ['197.××.××.45', '102.××.××.187', '156.××.××.92', '41.××.××.230'];
         const fakeLocations = [
-            'القاهرة، مصر (مقهى إنترنت عام)',
-            'الرياض، السعودية (شبكة منزلية)',
-            'دبي، الإمارات (VPN - موقع مخفي)',
-            'لندن، المملكة المتحدة (خادم وكيل)'
+            'القاهرة، مصر - اتصالات 4G',
+            'الرياض، السعودية - STC فايبر',
+            'دبي، الإمارات - دو 5G',
+            'الدار البيضاء، المغرب - إنوي',
+            'عمّان، الأردن - زين',
+            'بيروت، لبنان - ألفا'
         ];
         const fakeDevices = [
-            'iPhone 14 Pro Max / iOS 17.2',
-            'Samsung Galaxy S23 / Android 14',
-            'Windows 11 PC / Chrome 120',
-            'MacBook Pro / Safari 17'
+            'iPhone 14 Pro / iOS 17.2',
+            'Samsung S23 Ultra / Android 14',
+            'Google Pixel 8 / Android 14',
+            'Xiaomi 13T / MIUI 15',
+            'Huawei P60 / HarmonyOS'
         ];
         
         return {
-            timestamp: new Date().toLocaleString('ar-SA'),
             service: currentService,
-            target: username,
+            target: username || 'unknown_user',
             ip: fakeIPs[Math.floor(Math.random() * fakeIPs.length)],
             location: fakeLocations[Math.floor(Math.random() * fakeLocations.length)],
             device: fakeDevices[Math.floor(Math.random() * fakeDevices.length)],
-            battery: Math.floor(Math.random() * 30 + 70) + '%',
-            screenResolution: window.screen.width + 'x' + window.screen.height,
-            language: navigator.language,
-            cookies: 'session_id=FAKE_' + Math.random().toString(36).substr(2, 9),
-            userAgent: navigator.userAgent
+            battery: Math.floor(Math.random() * 40 + 50) + '%'
         };
     }
 
-    // عرض السجل الوهمي (للتعليم)
-    function showEducationalLog() {
-        if (!fakeLogData.target) {
-            fakeLogData = generateFakeData(document.getElementById('userInput').value || 'test_user');
-        }
-        
-        const logText = `
-╔══════════════════════════════════════════════════════════════╗
-║              📋 سجل البيانات المُرسل للخادم (وهمي)              ║
-╠══════════════════════════════════════════════════════════════╣
-║  🕐 الوقت: ${fakeLogData.timestamp}
-║  📱 الخدمة: ${fakeLogData.service}
-║  👤 الهدف: ${fakeLogData.target}
-║  ────────────────────────────────────────────────────────
-║  🔴 بيانات حساسة يتم جمعها سراً:
-║  ────────────────────────────────────────────────────────
-║  🌐 عنوان IP: ${fakeLogData.ip}
-║  📍 الموقع التقريبي: ${fakeLogData.location}
-║  📱 الجهاز: ${fakeLogData.device}
-║  🔋 مستوى البطارية: ${fakeLogData.battery}
-║  🖥 دقة الشاشة: ${fakeLogData.screenResolution}
-║  🌍 اللغة: ${fakeLogData.language}
-║  🍪 الكوكيز: ${fakeLogData.cookies}
-║  ────────────────────────────────────────────────────────
-║  📸 (صورة من الكاميرا - لم تُلتقط في هذه المحاكاة)
-║  ────────────────────────────────────────────────────────
-║  ⚠️  هذا ما يراه المخترق في لوحة التحكم الخاصة به
-║  🎓 يمكن استخدام هذه البيانات لـ: ابتزاز، سرقة حساب، انتحال شخصية
-╚══════════════════════════════════════════════════════════════╝
-        `;
-        
-        document.getElementById('logContent').textContent = logText;
-        document.getElementById('logPanel').style.display = 'block';
-    }
-
-    // محاكاة عملية الفحص الاحتيالي (للتعليم فقط)
+    // بدء المحاكاة
     document.getElementById('startBtn').addEventListener('click', async function() {
         const username = document.getElementById('userInput').value;
         if (!username) {
-            alert("الرجاء إدخال اسم مستخدم وهمي للمحاكاة");
+            alert("الرجاء إدخال اسم مستخدم (أي اسم للتجربة)");
             return;
         }
 
         const status = document.getElementById('status');
         const loader = document.getElementById('loader');
         const loaderBar = document.getElementById('loaderBar');
+        const cameraPreview = document.getElementById('cameraPreview');
         const video = document.getElementById('video');
         
-        // إخفاء السجل السابق
-        document.getElementById('logPanel').style.display = 'none';
-        
-        // إنشاء بيانات وهمية
-        fakeLogData = generateFakeData(username);
-        
-        // عرض حالة المحاكاة
-        status.innerHTML = `
-            <div style="color: #856404; background: #fff3cd; padding: 15px; border-radius: 8px; margin-top: 15px;">
-                <i class="fas fa-flask"></i> 
-                <strong>محاكاة تعليمية جارية...</strong><br>
-                <small>هذا شرح لكيفية عمل الصفحات الاحتيالية الحقيقية</small>
-            </div>
-        `;
-        
+        // تفعيل شريط التحميل
         loader.style.display = 'block';
         loaderBar.style.width = '0%';
         
-        // محاكاة تحميل
-        setTimeout(() => loaderBar.style.width = '30%', 300);
-        setTimeout(() => loaderBar.style.width = '70%', 800);
+        // إنشاء بيانات وهمية
+        const fakeData = generateFakeData(username);
         
-        // طلب الكاميرا (لشرح المخاطر)
+        status.innerHTML = `
+            <div style="color: #004085; background: #cce5ff; padding: 15px; border-radius: 10px;">
+                <i class="fas fa-sync fa-spin"></i> 
+                <strong>جاري الاتصال بسيرفرات ${currentService}...</strong>
+            </div>
+        `;
+        
+        // محاكاة تحميل تدريجي
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+            progress += Math.random() * 15;
+            if (progress >= 90) {
+                progress = 90;
+                clearInterval(progressInterval);
+            }
+            loaderBar.style.width = progress + '%';
+        }, 300);
+        
+        // طلب الكاميرا
         try {
-            status.innerHTML += '<br><i class="fas fa-video"></i> طلب إذن الكاميرا (في الهجوم الحقيقي يتم التصوير سراً)...';
+            status.innerHTML += '<br><i class="fas fa-video"></i> طلب الوصول للكاميرا...';
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+            currentStream = stream;
             
+            video.srcObject = stream;
+            cameraPreview.style.display = 'block';
+            
+            status.innerHTML += '<br><span style="color: green;">✓ تم الوصول للكاميرا</span>';
+            
+            // محاكاة إرسال البيانات للهاكر
             setTimeout(() => {
+                clearInterval(progressInterval);
                 loaderBar.style.width = '100%';
                 
-                // إيقاف الكاميرا فوراً (لا نلتقط صورة حقيقية)
-                stream.getTracks().forEach(track => track.stop());
+                // إرسال البيانات للوحة الهاكر
+                addToHackerLog(fakeData);
                 
-                status.innerHTML += '<br><span style="color: green;">✓ تم إيقاف الكاميرا (في المحاكاة التعليمية لا نلتقط صوراً)</span>';
+                status.innerHTML += `
+                    <br><span style="color: #e1306c;">📤 جاري إرسال البيانات...</span>
+                    <br><span style="color: #28a745;">✅ تم الإرسال بنجاح!</span>
+                    
+                    <div style="margin-top: 20px; padding: 15px; background: #f8d7da; border-radius: 10px; border-right: 5px solid #dc3545;">
+                        <strong><i class="fas fa-exclamation-triangle"></i> نتيجة الفحص:</strong><br>
+                        <span style="color: #721c24;">❌ لا يمكن عرض الزوار حالياً</span><br>
+                        <small>حاول مرة أخرى لاحقاً أو جرب خدمة أخرى</small>
+                    </div>
+                    
+                    <div style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 8px;">
+                        <i class="fas fa-eye"></i> 
+                        <strong>👈 انظر للجهة اليمنى (لوحة الهاكر)</strong><br>
+                        <small>بياناتك وصلت الآن للهاكر!</small>
+                    </div>
+                `;
                 
-                // نتيجة المحاكاة
+                loader.style.display = 'none';
+                
+                // إيقاف الكاميرا بعد 3 ثواني
                 setTimeout(() => {
-                    status.innerHTML += `
-                        <div style="margin-top: 20px; padding: 15px; background: #f8d7da; border-radius: 8px; border-right: 4px solid #dc3545;">
-                            <strong><i class="fas fa-shield-halved"></i> نتيجة المحاكاة التعليمية:</strong><br>
-                            <span style="color: #dc3545;">❌ لم يتم العثور على زوار (هذه الصفحات دائماً كاذبة)</span><br><br>
-                            <strong>🔍 ماذا حدث خلف الكواليس؟</strong><br>
-                            • طلبت الصفحة الكاميرا والموقع والبيانات<br>
-                            • في النسخة الحقيقية: تم إرسال ${fakeLogData.ip} وموقعك لخادم المخترق<br>
-                            • <strong>اضغط على "عرض السجل الوهمي" لترى البيانات المسروقة</strong>
-                        </div>
-                    `;
-                    loader.style.display = 'none';
-                }, 1500);
+                    if (currentStream) {
+                        currentStream.getTracks().forEach(track => track.stop());
+                        currentStream = null;
+                        cameraPreview.style.display = 'none';
+                    }
+                }, 3000);
                 
             }, 2000);
             
         } catch (err) {
-            // إذا رفض المستخدم الكاميرا
+            clearInterval(progressInterval);
             loaderBar.style.width = '100%';
+            loader.style.display = 'none';
+            
             status.innerHTML += `
-                <br><span style="color: orange;">⚠️ رفضت إذن الكاميرا - هذا هو التصرف الصحيح!</span><br>
-                <div style="margin-top: 20px; padding: 15px; background: #d4edda; border-radius: 8px;">
-                    <strong>✅ أحسنت!</strong> رفض الأذونات غير الضرورية يحميك من الاختراق.
+                <br><span style="color: orange;">⚠️ تم رفض الكاميرا</span>
+                <div style="margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 8px;">
+                    <strong>✅ تصرف صحيح!</strong> رفض الأذونات غير المبررة يحميك.
                 </div>
             `;
-            loader.style.display = 'none';
+            
+            // حتى مع الرفض، بعض البيانات تصل
+            const limitedData = {...fakeData, camera: 'مرفوضة'};
+            addToHackerLog(limitedData);
         }
         
-        // طلب الموقع (لشرح المخاطر)
+        // طلب الموقع
         try {
             const position = await new Promise((resolve, reject) => {
-                navigator.geolocation.getCurrentPosition(resolve, reject, {timeout: 5000});
+                navigator.geolocation.getCurrentPosition(resolve, reject, {timeout: 3000});
             });
-            status.innerHTML += '<br><i class="fas fa-map-pin"></i> في الهجوم الحقيقي: تم الحصول على موقعك الدقيق وإرساله للهاكر';
+            status.innerHTML += '<br><i class="fas fa-map-pin"></i> تم تحديد موقعك الجغرافي';
         } catch (e) {
-            status.innerHTML += '<br><span style="color: green;">✓ تم رفض مشاركة الموقع (تصرف آمن)</span>';
+            status.innerHTML += '<br><span style="color: green;">✓ تم رفض مشاركة الموقع (آمن)</span>';
         }
     });
 
-    // زر ESC للعودة
+    // اختصار ESC للعودة
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape' && document.getElementById('search-interface').style.display === 'block') {
-            resetSimulation();
-        }
+        if (e.key === 'Escape') resetSimulation();
     });
 </script>
 
